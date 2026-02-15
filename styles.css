@@ -55,12 +55,7 @@ body {
     position: absolute;
     font-family: 'Courier New', monospace;
     font-size: 18px;
-    animation: binaryFade 3s ease-in-out infinite;
-}
-
-@keyframes binaryFade {
-    0%, 100% { opacity: 0.05; }
-    50% { opacity: 0.15; }
+    opacity: 0.1;
 }
 
 /* Floating Particles */

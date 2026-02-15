@@ -11,7 +11,6 @@ function createBinaryBackground() {
         char.style.left = `${Math.random() * 100}%`;
         char.style.top = `${Math.random() * 100}%`;
         char.style.color = colors[i % 3];
-        char.style.animationDelay = `${Math.random() * 2}s`;
         
         container.appendChild(char);
         
