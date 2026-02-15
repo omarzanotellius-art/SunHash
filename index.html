@@ -1,15 +1,167 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>My Future Startup</title>
-    <style>
-        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; background: #f4f4f4; }
-        img { max-width: 300px; border-radius: 10px; }
-        h1 { color: #333; margin-top: 20px; }
-        p { color: #666; font-size: 1.2rem; }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SunHash - Smart Escrow for Solar Utility Scale Projects</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <p>We are building something better.</p>
+    <!-- Subtle Grid Overlay -->
+    <div class="grid-overlay">
+        <svg class="grid-svg" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                    <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#06b6d4" stroke-width="0.5" />
+                </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#grid)" />
+        </svg>
+    </div>
+
+    <!-- Light Grid Network -->
+    <div class="main-grid">
+        <svg class="grid-svg" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <pattern id="mainGrid" width="100" height="100" patternUnits="userSpaceOnUse">
+                    <path d="M 100 0 L 0 0 0 100" fill="none" stroke="#06b6d4" stroke-width="0.5" opacity="0.3" />
+                </pattern>
+                <linearGradient id="gridGradient1" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#06b6d4" stop-opacity="0.6" />
+                    <stop offset="50%" stop-color="#a855f7" stop-opacity="0.6" />
+                    <stop offset="100%" stop-color="#ec4899" stop-opacity="0.6" />
+                </linearGradient>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#mainGrid)" />
+            
+            <!-- Grid intersection nodes -->
+            <circle cx="20%" cy="25%" r="3" fill="url(#gridGradient1)" opacity="0.4">
+                <animate attributeName="r" values="3;5;3" dur="3s" repeatCount="indefinite" />
+                <animate attributeName="opacity" values="0.4;0.7;0.4" dur="3s" repeatCount="indefinite" />
+            </circle>
+            <circle cx="40%" cy="25%" r="3" fill="url(#gridGradient1)" opacity="0.4">
+                <animate attributeName="r" values="3;5;3" dur="4s" repeatCount="indefinite" />
+                <animate attributeName="opacity" values="0.4;0.7;0.4" dur="4s" repeatCount="indefinite" />
+            </circle>
+            <circle cx="60%" cy="25%" r="3" fill="url(#gridGradient1)" opacity="0.4">
+                <animate attributeName="r" values="3;5;3" dur="3.5s" repeatCount="indefinite" />
+                <animate attributeName="opacity" values="0.4;0.7;0.4" dur="3.5s" repeatCount="indefinite" />
+            </circle>
+            <circle cx="80%" cy="25%" r="3" fill="url(#gridGradient1)" opacity="0.4">
+                <animate attributeName="r" values="3;5;3" dur="4.5s" repeatCount="indefinite" />
+                <animate attributeName="opacity" values="0.4;0.7;0.4" dur="4.5s" repeatCount="indefinite" />
+            </circle>
+            
+            <circle cx="20%" cy="50%" r="3" fill="url(#gridGradient1)" opacity="0.4">
+                <animate attributeName="r" values="3;5;3" dur="3.8s" repeatCount="indefinite" />
+                <animate attributeName="opacity" values="0.4;0.7;0.4" dur="3.8s" repeatCount="indefinite" />
+            </circle>
+            <circle cx="40%" cy="50%" r="3" fill="url(#gridGradient1)" opacity="0.4">
+                <animate attributeName="r" values="3;5;3" dur="3.2s" repeatCount="indefinite" />
+                <animate attributeName="opacity" values="0.4;0.7;0.4" dur="3.2s" repeatCount="indefinite" />
+            </circle>
+            <circle cx="60%" cy="50%" r="3" fill="url(#gridGradient1)" opacity="0.4">
+                <animate attributeName="r" values="3;5;3" dur="4.2s" repeatCount="indefinite" />
+                <animate attributeName="opacity" values="0.4;0.7;0.4" dur="4.2s" repeatCount="indefinite" />
+            </circle>
+            <circle cx="80%" cy="50%" r="3" fill="url(#gridGradient1)" opacity="0.4">
+                <animate attributeName="r" values="3;5;3" dur="3.6s" repeatCount="indefinite" />
+                <animate attributeName="opacity" values="0.4;0.7;0.4" dur="3.6s" repeatCount="indefinite" />
+            </circle>
+            
+            <circle cx="20%" cy="75%" r="3" fill="url(#gridGradient1)" opacity="0.4">
+                <animate attributeName="r" values="3;5;3" dur="4.8s" repeatCount="indefinite" />
+                <animate attributeName="opacity" values="0.4;0.7;0.4" dur="4.8s" repeatCount="indefinite" />
+            </circle>
+            <circle cx="40%" cy="75%" r="3" fill="url(#gridGradient1)" opacity="0.4">
+                <animate attributeName="r" values="3;5;3" dur="3.4s" repeatCount="indefinite" />
+                <animate attributeName="opacity" values="0.4;0.7;0.4" dur="3.4s" repeatCount="indefinite" />
+            </circle>
+            <circle cx="60%" cy="75%" r="3" fill="url(#gridGradient1)" opacity="0.4">
+                <animate attributeName="r" values="3;5;3" dur="4.4s" repeatCount="indefinite" />
+                <animate attributeName="opacity" values="0.4;0.7;0.4" dur="4.4s" repeatCount="indefinite" />
+            </circle>
+            <circle cx="80%" cy="75%" r="3" fill="url(#gridGradient1)" opacity="0.4">
+                <animate attributeName="r" values="3;5;3" dur="3.9s" repeatCount="indefinite" />
+                <animate attributeName="opacity" values="0.4;0.7;0.4" dur="3.9s" repeatCount="indefinite" />
+            </circle>
+            
+            <!-- Grid lines -->
+            <line x1="20%" y1="25%" x2="40%" y2="25%" stroke="url(#gridGradient1)" stroke-width="0.5" opacity="0.3" />
+            <line x1="40%" y1="25%" x2="60%" y2="25%" stroke="url(#gridGradient1)" stroke-width="0.5" opacity="0.3" />
+            <line x1="60%" y1="25%" x2="80%" y2="25%" stroke="url(#gridGradient1)" stroke-width="0.5" opacity="0.3" />
+            
+            <line x1="20%" y1="50%" x2="40%" y2="50%" stroke="url(#gridGradient1)" stroke-width="0.5" opacity="0.3" />
+            <line x1="40%" y1="50%" x2="60%" y2="50%" stroke="url(#gridGradient1)" stroke-width="0.5" opacity="0.3" />
+            <line x1="60%" y1="50%" x2="80%" y2="50%" stroke="url(#gridGradient1)" stroke-width="0.5" opacity="0.3" />
+            
+            <line x1="20%" y1="75%" x2="40%" y2="75%" stroke="url(#gridGradient1)" stroke-width="0.5" opacity="0.3" />
+            <line x1="40%" y1="75%" x2="60%" y2="75%" stroke="url(#gridGradient1)" stroke-width="0.5" opacity="0.3" />
+            <line x1="60%" y1="75%" x2="80%" y2="75%" stroke="url(#gridGradient1)" stroke-width="0.5" opacity="0.3" />
+            
+            <line x1="20%" y1="25%" x2="20%" y2="50%" stroke="url(#gridGradient1)" stroke-width="0.5" opacity="0.3" />
+            <line x1="20%" y1="50%" x2="20%" y2="75%" stroke="url(#gridGradient1)" stroke-width="0.5" opacity="0.3" />
+            
+            <line x1="40%" y1="25%" x2="40%" y2="50%" stroke="url(#gridGradient1)" stroke-width="0.5" opacity="0.3" />
+            <line x1="40%" y1="50%" x2="40%" y2="75%" stroke="url(#gridGradient1)" stroke-width="0.5" opacity="0.3" />
+            
+            <line x1="60%" y1="25%" x2="60%" y2="50%" stroke="url(#gridGradient1)" stroke-width="0.5" opacity="0.3" />
+            <line x1="60%" y1="50%" x2="60%" y2="75%" stroke="url(#gridGradient1)" stroke-width="0.5" opacity="0.3" />
+            
+            <line x1="80%" y1="25%" x2="80%" y2="50%" stroke="url(#gridGradient1)" stroke-width="0.5" opacity="0.3" />
+            <line x1="80%" y1="50%" x2="80%" y2="75%" stroke="url(#gridGradient1)" stroke-width="0.5" opacity="0.3" />
+        </svg>
+    </div>
+
+    <!-- Network Constellation -->
+    <div class="network-visualization" id="network"></div>
+
+    <!-- Binary Background -->
+    <div class="binary-background" id="binaryBg"></div>
+
+    <!-- Floating Data Particles -->
+    <div class="floating-particles">
+        <div class="particle particle-1"></div>
+        <div class="particle particle-2"></div>
+        <div class="particle particle-3"></div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content">
+        <div class="content-wrapper">
+            <!-- Company Name with Glitch Effect -->
+            <div class="title-container">
+                <h1 class="title main-title">SunHash</h1>
+                <h1 class="title glitch-1">SunHash</h1>
+                <h1 class="title glitch-2">SunHash</h1>
+            </div>
+
+            <!-- Tagline -->
+            <p class="tagline">Smart Escrow 4 Solar Utility Scale Projects</p>
+
+            <!-- Geometric Accent Lines -->
+            <div class="accent-lines">
+                <div class="line line-left"></div>
+                <div class="diamond"></div>
+                <div class="line line-right"></div>
+            </div>
+
+            <!-- Status Indicator -->
+            <div class="status-indicator">
+                <span class="pulse-container">
+                    <span class="pulse-ring"></span>
+                    <span class="pulse-dot"></span>
+                </span>
+                <span class="status-text">COMING SOON</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Corner Gradients -->
+    <div class="gradient-top-left"></div>
+    <div class="gradient-bottom-right"></div>
+    <div class="gradient-top-right"></div>
+
+    <script src="script.js"></script>
 </body>
 </html>
