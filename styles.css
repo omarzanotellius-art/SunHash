@@ -162,13 +162,12 @@ body {
 .glitch-1 {
     color: #06b6d4;
     animation: glitch1 0.3s ease-in-out infinite;
-    animation-delay: 5s;
 }
 
 .glitch-2 {
     color: #ec4899;
     animation: glitch2 0.3s ease-in-out infinite;
-    animation-delay: 5.1s;
+    animation-delay: 0.1s;
 }
 
 @keyframes glitch1 {
