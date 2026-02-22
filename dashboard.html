@@ -236,12 +236,30 @@ let allProjects = [];
 let currentFilter = 'all';
 
 // ── AUTH CHECK ────────────────────────────────────────────────
-(async () => {
+// We use onAuthStateChange as the primary gate rather than getSession(),
+// because after an OAuth or magic-link redirect the session token is in
+// the URL hash and getSession() may return null until Supabase parses it.
+let authResolved = false;
+
+sb.auth.onAuthStateChange((event, session) => {
+  authResolved = true;
+  if (!session) {
+    window.location.href = 'index.html';
+    return;
+  }
+  if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION' || event === 'TOKEN_REFRESHED') {
+    loadProfile(session.user);
+    loadProjects(session.user.id);
+  }
+});
+
+// Fallback: if onAuthStateChange never fires (e.g. no session at all),
+// redirect after a short wait so the page doesn't hang.
+setTimeout(async () => {
+  if (authResolved) return;
   const { data: { session } } = await sb.auth.getSession();
-  if (!session) { window.location.href = 'index.html'; return; }
-  loadProfile(session.user);
-  loadProjects(session.user.id);
-})();
+  if (!session) window.location.href = 'index.html';
+}, 3000);
 
 async function loadProfile(user) {
   const { data } = await sb.from('profiles').select('*').eq('id', user.id).single();
@@ -390,13 +408,7 @@ async function doSignout() {
   window.location.href = 'index.html';
 }
 
-// Handle OAuth redirect
-sb.auth.onAuthStateChange((event, session) => {
-  if (event === 'SIGNED_IN' && session) {
-    loadProfile(session.user);
-    loadProjects(session.user.id);
-  }
-});
+// Auth is handled by onAuthStateChange at the top of the script.
 </script>
 </body>
 </html>

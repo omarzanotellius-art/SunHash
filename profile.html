@@ -302,20 +302,33 @@ function setMsg(id, text, type) {
 }
 
 // ── INIT ──────────────────────────────────────────────────────
-(async () => {
-  const { data: { session } } = await sb.auth.getSession();
-  if (!session) { window.location.href = 'index.html'; return; }
-  currentUser = session.user;
-  document.getElementById('pf-email').value = currentUser.email || '';
-  loadProfile();
-  loadProjects();
+// Use onAuthStateChange so OAuth hash-based sessions are parsed first.
+let authResolved = false;
 
-  // Handle password reset from email link
-  if (window.location.hash.includes('type=recovery')) {
-    document.getElementById('pf-pw').focus();
-    setMsg('msg-pw', 'Enter your new password below.', 'ok');
+sb.auth.onAuthStateChange((event, session) => {
+  authResolved = true;
+  if (!session) { window.location.href = 'index.html'; return; }
+
+  if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION' || event === 'TOKEN_REFRESHED') {
+    currentUser = session.user;
+    document.getElementById('pf-email').value = currentUser.email || '';
+    loadProfile();
+    loadProjects();
+
+    // Handle password reset from email link
+    if (window.location.hash.includes('type=recovery')) {
+      document.getElementById('pf-pw').focus();
+      setMsg('msg-pw', 'Enter your new password below.', 'ok');
+    }
   }
-})();
+});
+
+// Fallback redirect if no session detected within 3s
+setTimeout(async () => {
+  if (authResolved) return;
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) window.location.href = 'index.html';
+}, 3000);
 
 async function loadProfile() {
   const { data } = await sb.from('profiles').select('*').eq('id', currentUser.id).single();
