@@ -115,24 +115,10 @@ body{font-family:var(--fb);background:var(--bg);color:var(--black);min-height:10
 .ob-card .field input,.ob-card .field select{background:var(--bg);}
 .ob-note{font-size:12px;color:var(--gray-dk);text-align:center;margin-top:16px;}
 
-/* ── LOADING ─────────────────────────────────────────────────── */
-#screen-loading{background:var(--black);align-items:center;justify-content:center;}
-.loading-logo{font-family:var(--fh);font-size:48px;font-weight:900;letter-spacing:4px;text-transform:uppercase;color:var(--white);}
-.loading-logo span{color:var(--yellow);}
-.loading-sub{font-family:var(--fh);font-size:12px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:#444;margin-top:12px;text-align:center;}
-@keyframes blink{0%,100%{opacity:.2}50%{opacity:1}}
-.loading-dots span{animation:blink 1.4s infinite;display:inline-block;}
-.loading-dots span:nth-child(2){animation-delay:.2s;}
-.loading-dots span:nth-child(3){animation-delay:.4s;}
-</style>
 </head>
 <body>
 
-<!-- ── LOADING ─────────────────────────────────────────── -->
-<div class="screen active" id="screen-loading" style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--black);">
-  <div class="loading-logo">Sun<span>Hash</span></div>
-  <div class="loading-sub"><span class="loading-dots"><span>▪</span><span>▪</span><span>▪</span></span></div>
-</div>
+<!-- Loading screen removed: auth screen shown immediately -->
 
 <!-- ── AUTH ───────────────────────────────────────────── -->
 <div class="screen" id="screen-auth">
@@ -407,14 +393,27 @@ async function saveProfile() {
 }
 
 // ── INIT ──────────────────────────────────────────────────────
+// Show auth immediately — NEVER let the loading screen hang.
+// Only redirect to dashboard if we can positively confirm a valid session.
+show('auth');
+
 (async () => {
-  const { data: { session } } = await sb.auth.getSession();
-  if (session) {
-    const { data: profile } = await sb.from('profiles').select('full_name').eq('id', session.user.id).single();
-    if (profile?.full_name) { window.location.href = 'dashboard.html'; return; }
-    else { show('onboarding'); return; }
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) return; // already on auth screen, nothing to do
+    const { data: profile } = await sb.from('profiles')
+      .select('full_name')
+      .eq('id', session.user.id)
+      .single();
+    if (profile?.full_name) {
+      window.location.href = 'dashboard.html';
+    } else {
+      show('onboarding');
+    }
+  } catch (e) {
+    // Supabase unreachable or wrong credentials — stay on auth screen
+    console.warn('Supabase init error:', e.message);
   }
-  show('auth');
 })();
 
 // Enter key support
