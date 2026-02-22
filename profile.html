@@ -7,107 +7,95 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-/* ── TOKENS ─────────────────────────────────────────────────── */
-:root {
-  --bg:      #E4E4E0;
-  --black:   #111111;
-  --yellow:  #DDFF00;
-  --white:   #F0F0EC;
-  --gray-lt: #D4D4D0;
-  --gray:    #B8B8B4;
-  --gray-dk: #888884;
-  --red:     #E83535;
-  --green:   #22883a;
-  --fh: 'Barlow Condensed', sans-serif;
-  --fb: 'Barlow', sans-serif;
-  --bk: 2px solid #111111;
-}
+:root{--bg:#E4E4E0;--black:#111111;--yellow:#DDFF00;--white:#F0F0EC;--gray-lt:#D4D4D0;--gray:#B8B8B4;--gray-dk:#888884;--red:#E83535;--green:#22883a;--fh:'Barlow Condensed',sans-serif;--fb:'Barlow',sans-serif;--bk:2px solid #111111;}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 html{scroll-behavior:smooth;}
 body{font-family:var(--fb);background:var(--bg);color:var(--black);min-height:100vh;-webkit-font-smoothing:antialiased;}
+a{text-decoration:none;}
 
-/* ── TOPBAR ─────────────────────────────────────────────────── */
+/* TOPBAR */
 .topbar{position:fixed;top:0;left:0;right:0;z-index:200;height:56px;background:var(--black);display:flex;align-items:center;justify-content:space-between;padding:0 40px;border-bottom:3px solid var(--yellow);}
-.logo{font-family:var(--fh);font-size:22px;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:var(--white);text-decoration:none;display:block;}
+.logo{font-family:var(--fh);font-size:22px;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:var(--white);}
 .logo span{color:var(--yellow);}
-.tb-right{display:flex;align-items:center;gap:12px;}
-.btn-back{background:none;border:1px solid #444;color:#888;font-family:var(--fh);font-size:12px;font-weight:700;letter-spacing:1px;padding:7px 16px;cursor:pointer;text-transform:uppercase;transition:all .15s;text-decoration:none;display:flex;align-items:center;gap:6px;}
+.tb-right{display:flex;align-items:center;gap:10px;}
+.btn-back{padding:7px 16px;border:1px solid #444;color:#888;font-family:var(--fh);font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;transition:all .15s;display:flex;align-items:center;gap:6px;}
 .btn-back:hover{border-color:var(--white);color:var(--white);}
 .btn-out{background:none;border:1px solid #444;color:#777;font-family:var(--fh);font-size:12px;font-weight:700;letter-spacing:1px;padding:7px 16px;cursor:pointer;text-transform:uppercase;transition:all .15s;}
 .btn-out:hover{border-color:var(--red);color:var(--red);}
 
-/* ── PAGE ──────────────────────────────────────────────────── */
+/* PAGE */
 .page{padding-top:56px;min-height:100vh;}
 
-/* ── HERO ──────────────────────────────────────────────────── */
-.hero{background:var(--black);padding:44px 40px;display:flex;align-items:flex-end;gap:40px;}
-.av-large{width:80px;height:80px;background:var(--yellow);color:var(--black);font-family:var(--fh);font-size:36px;font-weight:900;display:flex;align-items:center;justify-content:center;border:var(--bk);flex-shrink:0;}
-.hero-text{}
+/* HERO */
+.hero{background:var(--black);padding:44px 40px;display:flex;align-items:flex-end;gap:32px;flex-wrap:wrap;}
+@media(max-width:600px){.hero{padding:32px 20px;}}
+.av-lg{width:72px;height:72px;background:var(--yellow);color:var(--black);font-family:var(--fh);font-size:30px;font-weight:900;display:flex;align-items:center;justify-content:center;border:var(--bk);flex-shrink:0;}
 .hero-tag{font-family:var(--fh);font-size:11px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:var(--yellow);margin-bottom:8px;}
-.hero-name{font-family:var(--fh);font-size:clamp(28px,4vw,48px);font-weight:900;letter-spacing:-1px;text-transform:uppercase;color:var(--white);line-height:1;}
+.hero-name{font-family:var(--fh);font-size:clamp(24px,4vw,44px);font-weight:900;letter-spacing:-1px;text-transform:uppercase;color:var(--white);line-height:1;}
 .hero-sub{font-size:13px;color:#555;margin-top:6px;}
 
-/* ── BODY ──────────────────────────────────────────────────── */
-.body{max-width:960px;margin:0 auto;padding:48px 40px 80px;display:grid;grid-template-columns:1fr 1fr;gap:0;}
+/* MINI STATS */
+.mini-stats{display:grid;grid-template-columns:repeat(3,1fr);border:var(--bk);border-top:none;}
+@media(max-width:500px){.mini-stats{grid-template-columns:1fr;}}
+.ms{padding:18px;border-right:var(--bk);text-align:center;}
+.ms:last-child{border-right:none;}
+.ms-v{font-family:var(--fh);font-size:32px;font-weight:900;letter-spacing:-1px;line-height:1;margin-bottom:4px;}
+.ms-l{font-family:var(--fh);font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gray-dk);}
+.ms:nth-child(2){background:var(--yellow);}
+.ms:nth-child(2) .ms-l{color:#666;}
+
+/* BODY GRID */
+.body{max-width:960px;margin:0 auto;padding:0;display:grid;grid-template-columns:1fr 1fr;}
 @media(max-width:700px){.body{grid-template-columns:1fr;}}
 
-/* ── SECTION ─────────────────────────────────────────────────── */
-.section{border:var(--bk);background:var(--white);margin-bottom:0;}
-.section+.section{border-top:none;}
-.section-header{background:var(--black);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;}
-.section-title{font-family:var(--fh);font-size:13px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--yellow);}
-.section-body{padding:24px;}
+/* SECTION */
+.sec{border:var(--bk);border-top:none;border-right:none;background:var(--white);}
+.sec:nth-child(odd){border-right:var(--bk);}
+.sec-hdr{background:var(--black);padding:13px 24px;}
+.sec-title{font-family:var(--fh);font-size:12px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--yellow);}
+.sec-body{padding:24px;}
 
-/* Make sections span both columns when needed */
-.section.full{grid-column:1/-1;}
-
-/* ── FIELDS ──────────────────────────────────────────────────── */
+/* FIELDS */
 .field{margin-bottom:18px;}
 .field:last-child{margin-bottom:0;}
 .field label{display:block;font-family:var(--fh);font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gray-dk);margin-bottom:7px;}
-.field input,.field select,.field textarea{width:100%;padding:11px 14px;background:var(--bg);border:var(--bk);font-family:var(--fb);font-size:15px;color:var(--black);outline:none;transition:all .15s;-webkit-appearance:none;resize:vertical;}
-.field input::placeholder,.field textarea::placeholder{color:var(--gray);}
-.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--black);box-shadow:3px 3px 0 var(--yellow);}
+.field input,.field select{width:100%;padding:11px 14px;background:var(--bg);border:var(--bk);font-family:var(--fb);font-size:15px;color:var(--black);outline:none;-webkit-appearance:none;}
+.field input::placeholder{color:var(--gray);}
+.field input:focus,.field select:focus{box-shadow:3px 3px 0 var(--yellow);}
 .field input[readonly]{background:var(--gray-lt);color:var(--gray-dk);cursor:not-allowed;}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
 
-/* ── BUTTONS ─────────────────────────────────────────────────── */
-.btn-save{padding:13px 28px;background:var(--black);border:var(--bk);color:var(--yellow);font-family:var(--fh);font-size:14px;font-weight:900;letter-spacing:3px;text-transform:uppercase;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:8px;}
+/* BUTTONS */
+.btn-save{padding:13px 24px;background:var(--black);border:var(--bk);color:var(--yellow);font-family:var(--fh);font-size:14px;font-weight:900;letter-spacing:3px;text-transform:uppercase;cursor:pointer;transition:all .15s;display:inline-block;}
 .btn-save:hover{background:var(--yellow);color:var(--black);}
 .btn-save:disabled{opacity:.4;cursor:not-allowed;}
-.btn-danger{padding:13px 28px;background:none;border:2px solid var(--red);color:var(--red);font-family:var(--fh);font-size:14px;font-weight:900;letter-spacing:3px;text-transform:uppercase;cursor:pointer;transition:all .15s;}
+.btn-danger{padding:13px 24px;background:none;border:2px solid var(--red);color:var(--red);font-family:var(--fh);font-size:14px;font-weight:900;letter-spacing:3px;text-transform:uppercase;cursor:pointer;transition:all .15s;}
 .btn-danger:hover{background:var(--red);color:var(--white);}
 
-/* ── MESSAGES ─────────────────────────────────────────────────── */
+/* MESSAGES */
 .msg{min-height:18px;margin-top:12px;font-size:13px;font-weight:600;}
 .msg.err{color:var(--red);}
 .msg.ok{color:var(--green);}
 
-/* ── STATS MINI ──────────────────────────────────────────────── */
-.mini-stats{display:grid;grid-template-columns:repeat(3,1fr);border:var(--bk);border-top:none;}
-.mini-stat{padding:18px;border-right:var(--bk);text-align:center;}
-.mini-stat:last-child{border-right:none;}
-.ms-val{font-family:var(--fh);font-size:32px;font-weight:900;letter-spacing:-1px;line-height:1;margin-bottom:4px;}
-.ms-lbl{font-family:var(--fh);font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gray-dk);}
-.mini-stat:nth-child(2){background:var(--yellow);}
-.mini-stat:nth-child(2) .ms-lbl{color:#555;}
+/* ACTIVITY */
+.act-item{display:flex;gap:14px;padding:12px 0;border-bottom:1px solid var(--gray-lt);}
+.act-item:last-child{border-bottom:none;}
+.act-dot{width:9px;height:9px;background:var(--yellow);border:var(--bk);flex-shrink:0;margin-top:4px;}
+.act-dot.gray{background:var(--gray);}
+.act-desc{font-size:14px;font-weight:500;}
+.act-date{font-size:12px;color:var(--gray-dk);margin-top:2px;}
 
-/* ── ACTIVITY ─────────────────────────────────────────────────── */
-.activity-list{display:flex;flex-direction:column;gap:0;}
-.activity-item{display:flex;align-items:flex-start;gap:16px;padding:14px 0;border-bottom:1px solid var(--gray-lt);}
-.activity-item:last-child{border-bottom:none;}
-.activity-dot{width:10px;height:10px;background:var(--yellow);border:var(--bk);flex-shrink:0;margin-top:4px;}
-.activity-dot.gray{background:var(--gray);}
-.activity-text{flex:1;}
-.activity-desc{font-size:14px;font-weight:500;}
-.activity-date{font-size:12px;color:var(--gray-dk);margin-top:2px;}
+/* PLAN BADGE */
+.plan-badge{display:inline-flex;align-items:center;gap:8px;background:var(--black);color:var(--yellow);font-family:var(--fh);font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:7px 14px;border:var(--bk);margin-bottom:16px;}
+.plan-dot{width:7px;height:7px;background:var(--yellow);}
+.info-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--gray-lt);font-size:14px;}
+.info-row:last-child{border-bottom:none;}
+.info-row span:first-child{font-weight:600;}
+.info-row span:last-child{color:var(--gray-dk);}
 
-/* ── PLAN BADGE ──────────────────────────────────────────────── */
-.plan-badge{display:inline-flex;align-items:center;gap:8px;background:var(--black);color:var(--yellow);font-family:var(--fh);font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:8px 16px;border:var(--bk);}
-.plan-dot{width:8px;height:8px;background:var(--yellow);}
-
-/* Grid layout override for profile */
-.grid-col{display:flex;flex-direction:column;}
-.grid-col .section{flex:none;}
+/* DANGER SECTION */
+.sec.danger .sec-hdr{background:#1a0000;}
+.sec.danger .sec-title{color:#ff6b6b;}
 </style>
 </head>
 <body>
@@ -124,163 +112,110 @@ body{font-family:var(--fb);background:var(--bg);color:var(--black);min-height:10
 </div>
 
 <div class="page">
-
-  <!-- HERO -->
   <div class="hero">
-    <div class="av-large" id="prof-av">—</div>
-    <div class="hero-text">
+    <div class="av-lg" id="prof-av">—</div>
+    <div>
       <div class="hero-tag">Account Profile</div>
       <div class="hero-name" id="prof-name">Loading…</div>
       <div class="hero-sub" id="prof-sub">—</div>
     </div>
   </div>
 
-  <!-- STATS -->
-  <div class="mini-stats" id="mini-stats">
-    <div class="mini-stat"><div class="ms-val" id="ms-count">0</div><div class="ms-lbl">Assessments</div></div>
-    <div class="mini-stat"><div class="ms-val" id="ms-avg">—</div><div class="ms-lbl">Avg. Score</div></div>
-    <div class="mini-stat"><div class="ms-val" id="ms-reports">0</div><div class="ms-lbl">Reports</div></div>
+  <div class="mini-stats">
+    <div class="ms"><div class="ms-v" id="ms-count">0</div><div class="ms-l">Assessments</div></div>
+    <div class="ms"><div class="ms-v" id="ms-avg">—</div><div class="ms-l">Avg. Score</div></div>
+    <div class="ms"><div class="ms-v" id="ms-reports">0</div><div class="ms-l">Reports</div></div>
   </div>
 
   <div class="body">
 
-    <!-- LEFT COLUMN -->
-    <div class="grid-col">
-
-      <!-- Personal info -->
-      <div class="section">
-        <div class="section-header">
-          <div class="section-title">Personal Information</div>
+    <!-- Personal info -->
+    <div class="sec">
+      <div class="sec-hdr"><div class="sec-title">Personal Information</div></div>
+      <div class="sec-body">
+        <div class="field-row">
+          <div class="field"><label>First name</label><input type="text" id="pf-first" placeholder="Alessandro"/></div>
+          <div class="field"><label>Last name</label><input type="text" id="pf-last" placeholder="Rossi"/></div>
         </div>
-        <div class="section-body">
-          <div class="field"><label>Full name</label><input type="text" id="pf-name" placeholder="Your full name"/></div>
-          <div class="field"><label>Company</label><input type="text" id="pf-company" placeholder="Company name"/></div>
-          <div class="field">
-            <label>Your role</label>
-            <select id="pf-role">
-              <option value="" disabled>Select role…</option>
-              <option>Developer / Project Owner</option>
-              <option>Investor / Lender</option>
-              <option>EPC Contractor</option>
-              <option>Independent Engineer</option>
-              <option>Legal Counsel</option>
-              <option>Financial Advisor</option>
-              <option>Other</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Phone number</label>
-            <input type="tel" id="pf-phone" placeholder="+39 02 1234 5678"/>
-          </div>
-          <div class="field">
-            <label>Country</label>
-            <select id="pf-country">
-              <option value="" disabled>Select country…</option>
-              <optgroup label="Europe">
-                <option>Italy</option><option>Spain</option><option>France</option>
-                <option>Germany</option><option>United Kingdom</option><option>Portugal</option>
-                <option>Netherlands</option><option>Poland</option><option>Greece</option>
-                <option>Romania</option><option>Other Europe</option>
-              </optgroup>
-              <optgroup label="Americas">
-                <option>United States</option><option>Canada</option><option>Brazil</option>
-                <option>Mexico</option><option>Chile</option><option>Other Americas</option>
-              </optgroup>
-              <optgroup label="Middle East & Africa">
-                <option>UAE</option><option>Saudi Arabia</option><option>South Africa</option><option>Other MEA</option>
-              </optgroup>
-              <optgroup label="Asia Pacific">
-                <option>Australia</option><option>India</option><option>Japan</option><option>Other APAC</option>
-              </optgroup>
-            </select>
-          </div>
-          <button class="btn-save" id="btn-save-profile" onclick="saveProfile()">Save Changes →</button>
-          <div class="msg" id="msg-profile"></div>
+        <div class="field"><label>Company</label><input type="text" id="pf-company" placeholder="Company name"/></div>
+        <div class="field">
+          <label>Role</label>
+          <select id="pf-role">
+            <option value="" disabled>Select role…</option>
+            <option>Developer / Project Owner</option>
+            <option>Investor / Lender</option>
+            <option>EPC Contractor</option>
+            <option>Independent Engineer</option>
+            <option>Legal Counsel</option>
+            <option>Financial Advisor</option>
+            <option>Other</option>
+          </select>
         </div>
+        <div class="field">
+          <label>Phone</label>
+          <input type="tel" id="pf-phone" placeholder="+39 02 1234 5678"/>
+        </div>
+        <div class="field">
+          <label>Country</label>
+          <select id="pf-country">
+            <option value="" disabled>Select country…</option>
+            <optgroup label="Europe"><option>Italy</option><option>Spain</option><option>France</option><option>Germany</option><option>United Kingdom</option><option>Portugal</option><option>Netherlands</option><option>Poland</option><option>Greece</option><option>Romania</option><option>Other Europe</option></optgroup>
+            <optgroup label="Americas"><option>United States</option><option>Canada</option><option>Brazil</option><option>Mexico</option><option>Chile</option><option>Other Americas</option></optgroup>
+            <optgroup label="Middle East &amp; Africa"><option>UAE</option><option>Saudi Arabia</option><option>South Africa</option><option>Other MEA</option></optgroup>
+            <optgroup label="Asia Pacific"><option>Australia</option><option>India</option><option>Japan</option><option>Other APAC</option></optgroup>
+          </select>
+        </div>
+        <button class="btn-save" id="btn-save" onclick="saveProfile()">Save Changes →</button>
+        <div class="msg" id="msg-profile"></div>
       </div>
+    </div>
 
-      <!-- Subscription -->
-      <div class="section" style="border-top:none;">
-        <div class="section-header">
-          <div class="section-title">Plan & Subscription</div>
+    <!-- Account & security -->
+    <div class="sec">
+      <div class="sec-hdr"><div class="sec-title">Account &amp; Security</div></div>
+      <div class="sec-body">
+        <div class="field">
+          <label>Email address</label>
+          <input type="email" id="pf-email" readonly/>
         </div>
-        <div class="section-body">
-          <div style="margin-bottom:16px;">
-            <div class="plan-badge"><div class="plan-dot"></div>Beta Access</div>
-          </div>
-          <p style="font-size:14px;color:var(--gray-dk);line-height:1.7;margin-bottom:20px;">
-            You are on the SunHash Beta. All features are free during this period. 
-            Pricing will be announced before general availability.
-          </p>
-          <div style="display:flex;flex-direction:column;gap:10px;">
-            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--gray-lt);">
-              <span style="font-size:14px;font-weight:600;">Assessments this month</span>
-              <span style="font-family:var(--fh);font-size:18px;font-weight:900;" id="pl-month">—</span>
-            </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--gray-lt);">
-              <span style="font-size:14px;font-weight:600;">Reports generated</span>
-              <span style="font-family:var(--fh);font-size:18px;font-weight:900;" id="pl-reports">—</span>
-            </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;">
-              <span style="font-size:14px;font-weight:600;">Member since</span>
-              <span style="font-size:14px;color:var(--gray-dk);" id="pl-since">—</span>
-            </div>
-          </div>
+        <div style="padding:10px 12px;background:var(--bg);border-left:3px solid var(--yellow);margin-bottom:18px;">
+          <p style="font-size:13px;color:var(--gray-dk);line-height:1.6;">To change your email contact <a href="mailto:support@sunhash.io" style="color:var(--black);font-weight:600;">support@sunhash.io</a></p>
         </div>
+        <div class="field"><label>New password</label><input type="password" id="pf-pw" placeholder="Leave blank to keep current"/></div>
+        <div class="field"><label>Confirm password</label><input type="password" id="pf-pw2" placeholder="Repeat new password"/></div>
+        <button class="btn-save" onclick="changePassword()">Update Password →</button>
+        <div class="msg" id="msg-pw"></div>
       </div>
+    </div>
 
-    </div><!-- /LEFT COLUMN -->
-
-    <!-- RIGHT COLUMN -->
-    <div class="grid-col" style="border-left:none;">
-
-      <!-- Email / Auth -->
-      <div class="section" style="border-left:none;">
-        <div class="section-header">
-          <div class="section-title">Account & Security</div>
-        </div>
-        <div class="section-body">
-          <div class="field">
-            <label>Email address</label>
-            <input type="email" id="pf-email" readonly placeholder="—"/>
-          </div>
-          <div style="margin-bottom:24px;padding:12px;background:var(--bg);border-left:3px solid var(--yellow);">
-            <p style="font-size:13px;color:var(--gray-dk);line-height:1.6;">To change your email address, contact us at <a href="mailto:support@sunhash.io" style="color:var(--black);">support@sunhash.io</a></p>
-          </div>
-          <div class="field"><label>New password</label><input type="password" id="pf-pw" placeholder="Leave blank to keep current"/></div>
-          <div class="field"><label>Confirm new password</label><input type="password" id="pf-pw2" placeholder="Repeat new password"/></div>
-          <button class="btn-save" onclick="changePassword()">Update Password →</button>
-          <div class="msg" id="msg-pw"></div>
-        </div>
+    <!-- Plan -->
+    <div class="sec">
+      <div class="sec-hdr"><div class="sec-title">Plan &amp; Subscription</div></div>
+      <div class="sec-body">
+        <div class="plan-badge"><div class="plan-dot"></div>Beta Access</div>
+        <p style="font-size:14px;color:var(--gray-dk);line-height:1.7;margin-bottom:18px;">All features are free during the beta. Pricing will be announced before general availability.</p>
+        <div class="info-row"><span>Assessments this month</span><span id="pl-month">—</span></div>
+        <div class="info-row"><span>Reports generated</span><span id="pl-reports">—</span></div>
+        <div class="info-row"><span>Member since</span><span id="pl-since">—</span></div>
       </div>
+    </div>
 
-      <!-- Recent activity -->
-      <div class="section" style="border-left:none;border-top:none;">
-        <div class="section-header">
-          <div class="section-title">Recent Activity</div>
-        </div>
-        <div class="section-body">
-          <div class="activity-list" id="activity-list">
-            <div style="font-size:13px;color:var(--gray-dk);text-align:center;padding:24px 0;">Loading…</div>
-          </div>
-        </div>
+    <!-- Activity -->
+    <div class="sec">
+      <div class="sec-hdr"><div class="sec-title">Recent Activity</div></div>
+      <div class="sec-body">
+        <div id="activity-list"><div style="font-size:13px;color:var(--gray-dk);text-align:center;padding:24px 0;">Loading…</div></div>
       </div>
+    </div>
 
-      <!-- Danger zone -->
-      <div class="section" style="border-left:none;border-top:none;">
-        <div class="section-header" style="background:#1a0000;">
-          <div class="section-title" style="color:#ff6b6b;">Danger Zone</div>
-        </div>
-        <div class="section-body">
-          <p style="font-size:14px;color:var(--gray-dk);line-height:1.7;margin-bottom:20px;">
-            Deleting your account is permanent. All your projects, assessments, and reports will be removed and cannot be recovered.
-          </p>
-          <button class="btn-danger" onclick="confirmDelete()">Delete My Account</button>
-          <div class="msg" id="msg-delete"></div>
-        </div>
+    <!-- Danger zone — full width -->
+    <div class="sec danger" style="grid-column:1/-1;">
+      <div class="sec-hdr"><div class="sec-title">Danger Zone</div></div>
+      <div class="sec-body" style="display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;">
+        <p style="font-size:14px;color:var(--gray-dk);line-height:1.7;max-width:560px;">Deleting your account is permanent. All projects, assessments, and reports will be removed and cannot be recovered.</p>
+        <button class="btn-danger" onclick="confirmDelete()">Delete My Account</button>
       </div>
-
-    </div><!-- /RIGHT COLUMN -->
+    </div>
 
   </div>
 </div>
@@ -290,7 +225,6 @@ body{font-family:var(--fb);background:var(--bg);color:var(--black);min-height:10
 const SUPABASE_URL  = https://pyetvugwochlqdxjchwp.supabase.co;
 const SUPABASE_KEY  = sb_publishable_wcO7yhermAiLYrltUILrlw_thJ-I-de;
 // ─────────────────────────────────────────────────────────────
-
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let currentUser = null;
 
@@ -298,150 +232,134 @@ function setMsg(id, text, type) {
   const el = document.getElementById(id);
   el.textContent = text;
   el.className = 'msg ' + (type || '');
-  if (type === 'ok') setTimeout(() => { el.textContent = ''; el.className = 'msg'; }, 4000);
+  if (type === 'ok') setTimeout(() => { el.textContent=''; el.className='msg'; }, 4000);
 }
 
-// ── INIT ──────────────────────────────────────────────────────
-// Use onAuthStateChange so OAuth hash-based sessions are parsed first.
-let authResolved = false;
-
+// ── AUTH ──────────────────────────────────────────────────────
 sb.auth.onAuthStateChange((event, session) => {
-  authResolved = true;
-  if (!session) { window.location.href = 'index.html'; return; }
-
-  if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION' || event === 'TOKEN_REFRESHED') {
+  if (session) {
     currentUser = session.user;
-    document.getElementById('pf-email').value = currentUser.email || '';
+    document.getElementById('pf-email').value = session.user.email || '';
     loadProfile();
     loadProjects();
-
-    // Handle password reset from email link
+    const since = new Date(session.user.created_at).toLocaleDateString('en-GB',{month:'long',year:'numeric'});
+    document.getElementById('pl-since').textContent = since;
     if (window.location.hash.includes('type=recovery')) {
       document.getElementById('pf-pw').focus();
       setMsg('msg-pw', 'Enter your new password below.', 'ok');
     }
+  } else if (event === 'SIGNED_OUT') {
+    window.location.href = 'login.html';
   }
 });
 
-// Fallback redirect if no session detected within 3s
-setTimeout(async () => {
-  if (authResolved) return;
-  const { data: { session } } = await sb.auth.getSession();
-  if (!session) window.location.href = 'index.html';
-}, 3000);
-
 async function loadProfile() {
-  const { data } = await sb.from('profiles').select('*').eq('id', currentUser.id).single();
+  const { data } = await sb.from('profiles')
+    .select('first_name, last_name, company, role, phone, country')
+    .eq('id', currentUser.id)
+    .single();
   if (!data) return;
 
-  // Hero
-  const initials = (data.full_name || '?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
-  document.getElementById('prof-av').textContent   = initials;
-  document.getElementById('prof-name').textContent = data.full_name || currentUser.email;
+  const first = data.first_name || '';
+  const last  = data.last_name  || '';
+  const full  = [first, last].filter(Boolean).join(' ');
+  const ini   = [first[0], last[0]].filter(Boolean).join('').toUpperCase() || '?';
+
+  document.getElementById('prof-av').textContent   = ini;
+  document.getElementById('prof-name').textContent = full || currentUser.email;
   document.getElementById('prof-sub').textContent  = [data.role, data.company, data.country].filter(Boolean).join(' · ');
 
-  // Form fields
-  document.getElementById('pf-name').value    = data.full_name || '';
-  document.getElementById('pf-company').value = data.company   || '';
-  document.getElementById('pf-phone').value   = data.phone     || '';
+  document.getElementById('pf-first').value   = first;
+  document.getElementById('pf-last').value    = last;
+  document.getElementById('pf-company').value = data.company || '';
+  document.getElementById('pf-phone').value   = data.phone   || '';
 
   const roleEl = document.getElementById('pf-role');
-  for (let o of roleEl.options) if (o.value === data.role) { o.selected = true; break; }
-
+  for (const o of roleEl.options) if (o.value === data.role) { o.selected = true; break; }
   const countryEl = document.getElementById('pf-country');
-  for (let o of countryEl.options) if (o.value === data.country) { o.selected = true; break; }
-
-  // Member since
-  const since = new Date(currentUser.created_at).toLocaleDateString('en-GB', { month:'long', year:'numeric' });
-  document.getElementById('pl-since').textContent = since;
+  for (const o of countryEl.options) if (o.value === data.country) { o.selected = true; break; }
 }
 
 async function loadProjects() {
-  const { data } = await sb.from('projects').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
+  const { data } = await sb.from('projects')
+    .select('*')
+    .eq('user_id', currentUser.id)
+    .order('created_at', { ascending: false });
   const projects = data || [];
-  const complete = projects.filter(p => p.status === 'complete');
-  const scored   = complete.filter(p => p.score_overall);
-  const avg      = scored.length ? Math.round(scored.reduce((a,p) => a + p.score_overall, 0) / scored.length) : null;
-  const thisMonth = projects.filter(p => new Date(p.created_at) > new Date(Date.now() - 30*86400000)).length;
+  const complete  = projects.filter(p => p.status === 'complete');
+  const scored    = complete.filter(p => p.score_overall != null);
+  const avg       = scored.length ? Math.round(scored.reduce((a,p)=>a+p.score_overall,0)/scored.length) : null;
+  const thisMonth = projects.filter(p => new Date(p.created_at) > new Date(Date.now()-30*86400000)).length;
 
   document.getElementById('ms-count').textContent   = projects.length;
-  document.getElementById('ms-avg').textContent     = avg || '—';
+  document.getElementById('ms-avg').textContent     = avg ?? '—';
   document.getElementById('ms-reports').textContent = complete.length;
   document.getElementById('pl-month').textContent   = thisMonth;
   document.getElementById('pl-reports').textContent = complete.length;
 
-  // Activity
   const list = document.getElementById('activity-list');
   if (!projects.length) {
     list.innerHTML = '<div style="font-size:13px;color:var(--gray-dk);text-align:center;padding:24px 0;">No activity yet.</div>';
     return;
   }
-  list.innerHTML = projects.slice(0, 5).map(p => {
-    const date = new Date(p.created_at).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
-    const isComplete = p.status === 'complete';
-    return `<div class="activity-item">
-      <div class="activity-dot ${isComplete ? '' : 'gray'}"></div>
-      <div class="activity-text">
-        <div class="activity-desc">${isComplete ? 'Report generated' : 'Assessment started'} — ${p.name || 'Unnamed project'}</div>
-        <div class="activity-date">${date} · ${p.capacity_mw ? p.capacity_mw + ' MWp' : ''} ${p.location || ''}</div>
+  list.innerHTML = projects.slice(0,5).map(p => {
+    const date = new Date(p.created_at).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+    return `<div class="act-item">
+      <div class="act-dot ${p.status==='complete'?'':'gray'}"></div>
+      <div>
+        <div class="act-desc">${p.status==='complete'?'Report generated':'Assessment started'} — ${p.name||'Unnamed project'}</div>
+        <div class="act-date">${date}${p.capacity_mw?' · '+p.capacity_mw+' MWp':''}${p.location?' · '+p.location:''}</div>
       </div>
     </div>`;
   }).join('');
 }
 
 async function saveProfile() {
-  const btn = document.getElementById('btn-save-profile');
+  const btn = document.getElementById('btn-save');
   btn.disabled = true; btn.textContent = 'Saving…';
   const { error } = await sb.from('profiles').upsert({
-    id:        currentUser.id,
-    full_name: document.getElementById('pf-name').value,
-    company:   document.getElementById('pf-company').value,
-    role:      document.getElementById('pf-role').value,
-    phone:     document.getElementById('pf-phone').value,
-    country:   document.getElementById('pf-country').value,
+    id:         currentUser.id,
+    first_name: document.getElementById('pf-first').value.trim(),
+    last_name:  document.getElementById('pf-last').value.trim(),
+    company:    document.getElementById('pf-company').value.trim(),
+    role:       document.getElementById('pf-role').value,
+    phone:      document.getElementById('pf-phone').value.trim(),
+    country:    document.getElementById('pf-country').value,
   });
   btn.disabled = false; btn.textContent = 'Save Changes →';
   if (error) { setMsg('msg-profile', error.message, 'err'); return; }
-  setMsg('msg-profile', '✓ Profile saved successfully.', 'ok');
+  setMsg('msg-profile', '✓ Profile saved.', 'ok');
   loadProfile();
 }
 
 async function changePassword() {
   const pw  = document.getElementById('pf-pw').value;
   const pw2 = document.getElementById('pf-pw2').value;
-  if (!pw) { setMsg('msg-pw', 'Enter a new password.', 'err'); return; }
-  if (pw !== pw2) { setMsg('msg-pw', 'Passwords do not match.', 'err'); return; }
-  if (pw.length < 8) { setMsg('msg-pw', 'Password must be at least 8 characters.', 'err'); return; }
+  if (!pw) { setMsg('msg-pw','Enter a new password.','err'); return; }
+  if (pw.length < 8) { setMsg('msg-pw','Password must be at least 8 characters.','err'); return; }
+  if (pw !== pw2) { setMsg('msg-pw','Passwords do not match.','err'); return; }
   const { error } = await sb.auth.updateUser({ password: pw });
   if (error) { setMsg('msg-pw', error.message, 'err'); return; }
-  setMsg('msg-pw', '✓ Password updated successfully.', 'ok');
-  document.getElementById('pf-pw').value  = '';
+  setMsg('msg-pw','✓ Password updated.','ok');
+  document.getElementById('pf-pw').value = '';
   document.getElementById('pf-pw2').value = '';
 }
 
 function confirmDelete() {
-  const confirmed = confirm('Are you absolutely sure? This will permanently delete your account and all project data. This cannot be undone.');
-  if (!confirmed) return;
-  const confirmed2 = confirm('Final confirmation: Delete account and all data?');
-  if (!confirmed2) return;
+  if (!confirm('This will permanently delete your account and all project data. This cannot be undone.')) return;
+  if (!confirm('Final confirmation: delete everything?')) return;
   deleteAccount();
 }
-
 async function deleteAccount() {
-  setMsg('msg-delete', 'Deleting account…', '');
-  // Delete user's projects first
   await sb.from('projects').delete().eq('user_id', currentUser.id);
   await sb.from('profiles').delete().eq('id', currentUser.id);
-  // Note: deleting the auth user requires a server-side function
-  // For now, sign out and show message
   await sb.auth.signOut();
-  alert('Your data has been deleted. Contact support@sunhash.io to fully remove your auth account.');
+  alert('Your data has been deleted. Contact support@sunhash.io to remove your login credentials.');
   window.location.href = 'index.html';
 }
 
 async function doSignout() {
   await sb.auth.signOut();
-  window.location.href = 'index.html';
 }
 </script>
 </body>

@@ -8,7 +8,9 @@ Pre-construction solar risk assessment. AI-powered. Six risk categories. Scored 
 
 | File | Purpose |
 |------|---------|
-| `index.html` | Login / Sign-up / Onboarding |
+| `index.html` | Company landing page — no auth required |
+| `login.html` | Sign in (email/password + Google OAuth) |
+| `signup.html` | Create account + profile setup (first name, last name, role, country) |
 | `dashboard.html` | Multi-project dashboard |
 | `profile.html` | User profile and account settings |
 
@@ -53,7 +55,8 @@ In your Supabase project, go to **SQL Editor** and run the following:
 -- User profiles (extends Supabase auth.users)
 create table public.profiles (
   id          uuid references auth.users(id) on delete cascade primary key,
-  full_name   text,
+  first_name  text,
+  last_name   text,
   company     text,
   role        text,
   country     text,
@@ -125,7 +128,7 @@ create trigger on_auth_user_created
 
 ### Step 4 — Configure the HTML files
 
-Open each of the three HTML files and find the `CONFIG` block near the top of the `<script>` section:
+Open `login.html`, `signup.html`, `dashboard.html`, and `profile.html` and find the `CONFIG` block near the top of the `<script>` section (`index.html` is a static landing page with no Supabase calls):
 
 ```js
 // ── CONFIG ────────────────────────────────────────
@@ -201,6 +204,8 @@ Tally (Watch Responses)
    ```
    https://yoursite.github.io/sunhash/
    https://yoursite.github.io/sunhash/dashboard.html
+   https://yoursite.github.io/sunhash/login.html
+   https://yoursite.github.io/sunhash/signup.html
    https://yoursite.github.io/sunhash/profile.html
    http://localhost:3000
    http://127.0.0.1:5500
@@ -238,7 +243,9 @@ npx serve .
 
 ```
 sunhash/
-├── index.html        # Login, sign-up, onboarding
+├── index.html        # Company landing page (no auth)
+├── login.html        # Sign in
+├── signup.html       # Create account + profile setup
 ├── dashboard.html    # Project dashboard
 ├── profile.html      # User profile & settings
 └── README.md         # This file
