@@ -1,167 +1,428 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SunHash - Smart Escrow for Solar Utility Scale Projects</title>
-    <link rel="stylesheet" href="styles.css">
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>SunHash — Risk Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+/* ── TOKENS ─────────────────────────────────────────────────── */
+:root {
+  --bg:      #E4E4E0;
+  --black:   #111111;
+  --black2:  #1A1A1A;
+  --yellow:  #DDFF00;
+  --white:   #F0F0EC;
+  --gray-lt: #D4D4D0;
+  --gray:    #B8B8B4;
+  --gray-dk: #888884;
+  --red:     #E83535;
+  --fh: 'Barlow Condensed', sans-serif;
+  --fb: 'Barlow', sans-serif;
+  --bk: 2px solid #111111;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--fb);background:var(--bg);color:var(--black);min-height:100vh;-webkit-font-smoothing:antialiased;}
+
+/* ── SCREEN SYSTEM ────────────────────────────────────────────── */
+.screen{display:none;min-height:100vh;flex-direction:column;}
+.screen.active{display:flex;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.screen.active{animation:fadeIn .25s ease both;}
+
+/* ── TOPBAR ──────────────────────────────────────────────────── */
+.topbar{height:56px;background:var(--black);display:flex;align-items:center;justify-content:space-between;padding:0 40px;border-bottom:3px solid var(--yellow);flex-shrink:0;}
+.logo{font-family:var(--fh);font-size:24px;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:var(--white);}
+.logo span{color:var(--yellow);}
+.topbar-tag{font-family:var(--fh);font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#555;}
+
+/* ── AUTH HERO ───────────────────────────────────────────────── */
+.auth-hero{background:var(--black);padding:56px 40px 48px;display:flex;align-items:flex-end;justify-content:space-between;gap:40px;flex-wrap:wrap;}
+.auth-hero-text h1{font-family:var(--fh);font-size:clamp(36px,5vw,66px);font-weight:900;text-transform:uppercase;line-height:1.0;color:var(--white);letter-spacing:-1px;max-width:600px;margin-bottom:14px;}
+.auth-hero-text h1 em{color:var(--yellow);font-style:normal;display:block;}
+.auth-hero-text p{font-size:15px;color:rgba(255,255,255,.45);max-width:480px;line-height:1.6;}
+
+/* Score strip */
+.score-strip{display:flex;gap:8px;flex-wrap:wrap;}
+.score-chip{width:72px;border:var(--bk);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px 8px;background:#1E1E1E;flex-shrink:0;}
+.score-chip .val{font-family:var(--fh);font-size:28px;font-weight:900;color:var(--white);line-height:1;}
+.score-chip .lbl{font-family:var(--fh);font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#666;margin-top:4px;}
+.score-chip.hi .val{color:var(--yellow);}
+.score-chip.lo .val{color:var(--red);}
+
+/* ── AUTH BODY ───────────────────────────────────────────────── */
+.auth-body{flex:1;display:grid;grid-template-columns:1fr 1fr;border-top:var(--bk);}
+@media(max-width:768px){.auth-body{grid-template-columns:1fr;}.auth-panel.right{display:none;}}
+.auth-panel{padding:40px;}
+.auth-panel.left{background:var(--white);border-right:var(--bk);}
+.auth-panel.right{background:var(--bg);}
+
+/* Tabs */
+.tab-row{display:flex;border:var(--bk);margin-bottom:28px;overflow:hidden;}
+.tab-btn{flex:1;padding:12px;border:none;background:var(--bg);color:var(--gray-dk);font-family:var(--fh);font-size:14px;font-weight:800;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .15s;}
+.tab-btn.active{background:var(--black);color:var(--yellow);}
+.tab-btn:not(.active){border-right:var(--bk);}
+
+/* Fields */
+.field{margin-bottom:18px;}
+.field label{display:block;font-family:var(--fh);font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gray-dk);margin-bottom:7px;}
+.field input,.field select{width:100%;padding:11px 14px;background:var(--white);border:var(--bk);font-family:var(--fb);font-size:15px;color:var(--black);outline:none;transition:border-color .15s;-webkit-appearance:none;}
+.field input::placeholder{color:var(--gray);}
+.field input:focus,.field select:focus{border-color:var(--black);box-shadow:3px 3px 0 var(--yellow);}
+
+/* Buttons */
+.btn-google{width:100%;padding:13px;background:var(--white);border:var(--bk);font-family:var(--fh);font-size:14px;font-weight:800;letter-spacing:2px;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:20px;transition:all .15s;}
+.btn-google:hover{background:var(--black);color:var(--white);}
+.btn-google svg{width:18px;height:18px;flex-shrink:0;}
+.or-row{text-align:center;font-family:var(--fh);font-size:12px;font-weight:700;letter-spacing:2px;color:var(--gray);margin:0 0 20px;position:relative;}
+.or-row::before,.or-row::after{content:'';position:absolute;top:50%;width:40%;height:1px;background:var(--gray-lt);}
+.or-row::before{left:0;}.or-row::after{right:0;}
+.btn-primary{width:100%;padding:15px;background:var(--black);border:var(--bk);color:var(--yellow);font-family:var(--fh);font-size:16px;font-weight:900;letter-spacing:3px;text-transform:uppercase;cursor:pointer;transition:all .15s;margin-top:4px;}
+.btn-primary:hover{background:var(--yellow);color:var(--black);}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed;}
+
+/* Messages */
+.msg{min-height:20px;margin-top:12px;font-size:13px;font-weight:600;}
+.msg.err{color:var(--red);}
+.msg.ok{color:#22883a;}
+
+/* How it works */
+.panel-tag{font-family:var(--fh);font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--yellow);background:var(--black);display:inline-block;padding:4px 10px;margin-bottom:16px;}
+.panel-title{font-family:var(--fh);font-size:28px;font-weight:900;text-transform:uppercase;letter-spacing:-1px;line-height:1.1;margin-bottom:28px;}
+.how-steps{display:flex;flex-direction:column;gap:0;}
+.how-step{display:flex;gap:20px;padding:20px 0;border-bottom:var(--bk);}
+.how-step:last-child{border-bottom:none;}
+.how-num{font-family:var(--fh);font-size:32px;font-weight:900;color:var(--yellow);line-height:1;flex-shrink:0;width:44px;}
+.how-text h4{font-family:var(--fh);font-size:16px;font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;}
+.how-text p{font-size:13px;color:var(--gray-dk);line-height:1.6;}
+
+/* ── ONBOARDING ───────────────────────────────────────────────── */
+#screen-onboarding{background:var(--bg);align-items:center;justify-content:center;padding:60px 20px;}
+.ob-wrap{width:100%;max-width:520px;}
+.ob-logo{font-family:var(--fh);font-size:26px;font-weight:900;letter-spacing:2px;text-transform:uppercase;text-align:center;margin-bottom:32px;}
+.ob-logo span{color:var(--yellow);}
+.ob-progress{display:flex;gap:6px;margin-bottom:32px;}
+.ob-seg{flex:1;height:4px;background:var(--gray-lt);}
+.ob-seg.done{background:var(--yellow);}
+.ob-header{margin-bottom:24px;}
+.ob-step-tag{font-family:var(--fh);font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--gray-dk);margin-bottom:8px;}
+.ob-header h2{font-family:var(--fh);font-size:32px;font-weight:900;text-transform:uppercase;letter-spacing:-1px;}
+.ob-header p{font-size:14px;color:var(--gray-dk);margin-top:6px;}
+.ob-card{background:var(--white);border:var(--bk);padding:32px;}
+.ob-card .field input,.ob-card .field select{background:var(--bg);}
+.ob-note{font-size:12px;color:var(--gray-dk);text-align:center;margin-top:16px;}
+
+/* ── LOADING ─────────────────────────────────────────────────── */
+#screen-loading{background:var(--black);align-items:center;justify-content:center;}
+.loading-logo{font-family:var(--fh);font-size:48px;font-weight:900;letter-spacing:4px;text-transform:uppercase;color:var(--white);}
+.loading-logo span{color:var(--yellow);}
+.loading-sub{font-family:var(--fh);font-size:12px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:#444;margin-top:12px;text-align:center;}
+@keyframes blink{0%,100%{opacity:.2}50%{opacity:1}}
+.loading-dots span{animation:blink 1.4s infinite;display:inline-block;}
+.loading-dots span:nth-child(2){animation-delay:.2s;}
+.loading-dots span:nth-child(3){animation-delay:.4s;}
+</style>
 </head>
 <body>
-    <!-- Subtle Grid Overlay -->
-    <div class="grid-overlay">
-        <svg class="grid-svg" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-                <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                    <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#06b6d4" stroke-width="0.5" />
-                </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#grid)" />
-        </svg>
+
+<!-- ── LOADING ─────────────────────────────────────────── -->
+<div class="screen active" id="screen-loading" style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--black);">
+  <div class="loading-logo">Sun<span>Hash</span></div>
+  <div class="loading-sub"><span class="loading-dots"><span>▪</span><span>▪</span><span>▪</span></span></div>
+</div>
+
+<!-- ── AUTH ───────────────────────────────────────────── -->
+<div class="screen" id="screen-auth">
+  <div class="topbar">
+    <div class="logo">Sun<span>Hash</span></div>
+    <div class="topbar-tag">Risk Intelligence Platform</div>
+  </div>
+
+  <div class="auth-hero">
+    <div class="auth-hero-text">
+      <h1>Pre-construction<em>risk intelligence</em>for solar developers</h1>
+      <p>Structured AI-powered risk assessment across six categories. Receive a scored report in minutes.</p>
     </div>
-
-    <!-- Light Grid Network -->
-    <div class="main-grid">
-        <svg class="grid-svg" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-                <pattern id="mainGrid" width="100" height="100" patternUnits="userSpaceOnUse">
-                    <path d="M 100 0 L 0 0 0 100" fill="none" stroke="#06b6d4" stroke-width="0.5" opacity="0.3" />
-                </pattern>
-                <linearGradient id="gridGradient1" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stop-color="#06b6d4" stop-opacity="0.6" />
-                    <stop offset="50%" stop-color="#a855f7" stop-opacity="0.6" />
-                    <stop offset="100%" stop-color="#ec4899" stop-opacity="0.6" />
-                </linearGradient>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#mainGrid)" />
-            
-            <!-- Grid intersection nodes -->
-            <circle cx="20%" cy="25%" r="3" fill="url(#gridGradient1)" opacity="0.4">
-                <animate attributeName="r" values="3;5;3" dur="3s" repeatCount="indefinite" />
-                <animate attributeName="opacity" values="0.4;0.7;0.4" dur="3s" repeatCount="indefinite" />
-            </circle>
-            <circle cx="40%" cy="25%" r="3" fill="url(#gridGradient1)" opacity="0.4">
-                <animate attributeName="r" values="3;5;3" dur="4s" repeatCount="indefinite" />
-                <animate attributeName="opacity" values="0.4;0.7;0.4" dur="4s" repeatCount="indefinite" />
-            </circle>
-            <circle cx="60%" cy="25%" r="3" fill="url(#gridGradient1)" opacity="0.4">
-                <animate attributeName="r" values="3;5;3" dur="3.5s" repeatCount="indefinite" />
-                <animate attributeName="opacity" values="0.4;0.7;0.4" dur="3.5s" repeatCount="indefinite" />
-            </circle>
-            <circle cx="80%" cy="25%" r="3" fill="url(#gridGradient1)" opacity="0.4">
-                <animate attributeName="r" values="3;5;3" dur="4.5s" repeatCount="indefinite" />
-                <animate attributeName="opacity" values="0.4;0.7;0.4" dur="4.5s" repeatCount="indefinite" />
-            </circle>
-            
-            <circle cx="20%" cy="50%" r="3" fill="url(#gridGradient1)" opacity="0.4">
-                <animate attributeName="r" values="3;5;3" dur="3.8s" repeatCount="indefinite" />
-                <animate attributeName="opacity" values="0.4;0.7;0.4" dur="3.8s" repeatCount="indefinite" />
-            </circle>
-            <circle cx="40%" cy="50%" r="3" fill="url(#gridGradient1)" opacity="0.4">
-                <animate attributeName="r" values="3;5;3" dur="3.2s" repeatCount="indefinite" />
-                <animate attributeName="opacity" values="0.4;0.7;0.4" dur="3.2s" repeatCount="indefinite" />
-            </circle>
-            <circle cx="60%" cy="50%" r="3" fill="url(#gridGradient1)" opacity="0.4">
-                <animate attributeName="r" values="3;5;3" dur="4.2s" repeatCount="indefinite" />
-                <animate attributeName="opacity" values="0.4;0.7;0.4" dur="4.2s" repeatCount="indefinite" />
-            </circle>
-            <circle cx="80%" cy="50%" r="3" fill="url(#gridGradient1)" opacity="0.4">
-                <animate attributeName="r" values="3;5;3" dur="3.6s" repeatCount="indefinite" />
-                <animate attributeName="opacity" values="0.4;0.7;0.4" dur="3.6s" repeatCount="indefinite" />
-            </circle>
-            
-            <circle cx="20%" cy="75%" r="3" fill="url(#gridGradient1)" opacity="0.4">
-                <animate attributeName="r" values="3;5;3" dur="4.8s" repeatCount="indefinite" />
-                <animate attributeName="opacity" values="0.4;0.7;0.4" dur="4.8s" repeatCount="indefinite" />
-            </circle>
-            <circle cx="40%" cy="75%" r="3" fill="url(#gridGradient1)" opacity="0.4">
-                <animate attributeName="r" values="3;5;3" dur="3.4s" repeatCount="indefinite" />
-                <animate attributeName="opacity" values="0.4;0.7;0.4" dur="3.4s" repeatCount="indefinite" />
-            </circle>
-            <circle cx="60%" cy="75%" r="3" fill="url(#gridGradient1)" opacity="0.4">
-                <animate attributeName="r" values="3;5;3" dur="4.4s" repeatCount="indefinite" />
-                <animate attributeName="opacity" values="0.4;0.7;0.4" dur="4.4s" repeatCount="indefinite" />
-            </circle>
-            <circle cx="80%" cy="75%" r="3" fill="url(#gridGradient1)" opacity="0.4">
-                <animate attributeName="r" values="3;5;3" dur="3.9s" repeatCount="indefinite" />
-                <animate attributeName="opacity" values="0.4;0.7;0.4" dur="3.9s" repeatCount="indefinite" />
-            </circle>
-            
-            <!-- Grid lines -->
-            <line x1="20%" y1="25%" x2="40%" y2="25%" stroke="url(#gridGradient1)" stroke-width="0.5" opacity="0.3" />
-            <line x1="40%" y1="25%" x2="60%" y2="25%" stroke="url(#gridGradient1)" stroke-width="0.5" opacity="0.3" />
-            <line x1="60%" y1="25%" x2="80%" y2="25%" stroke="url(#gridGradient1)" stroke-width="0.5" opacity="0.3" />
-            
-            <line x1="20%" y1="50%" x2="40%" y2="50%" stroke="url(#gridGradient1)" stroke-width="0.5" opacity="0.3" />
-            <line x1="40%" y1="50%" x2="60%" y2="50%" stroke="url(#gridGradient1)" stroke-width="0.5" opacity="0.3" />
-            <line x1="60%" y1="50%" x2="80%" y2="50%" stroke="url(#gridGradient1)" stroke-width="0.5" opacity="0.3" />
-            
-            <line x1="20%" y1="75%" x2="40%" y2="75%" stroke="url(#gridGradient1)" stroke-width="0.5" opacity="0.3" />
-            <line x1="40%" y1="75%" x2="60%" y2="75%" stroke="url(#gridGradient1)" stroke-width="0.5" opacity="0.3" />
-            <line x1="60%" y1="75%" x2="80%" y2="75%" stroke="url(#gridGradient1)" stroke-width="0.5" opacity="0.3" />
-            
-            <line x1="20%" y1="25%" x2="20%" y2="50%" stroke="url(#gridGradient1)" stroke-width="0.5" opacity="0.3" />
-            <line x1="20%" y1="50%" x2="20%" y2="75%" stroke="url(#gridGradient1)" stroke-width="0.5" opacity="0.3" />
-            
-            <line x1="40%" y1="25%" x2="40%" y2="50%" stroke="url(#gridGradient1)" stroke-width="0.5" opacity="0.3" />
-            <line x1="40%" y1="50%" x2="40%" y2="75%" stroke="url(#gridGradient1)" stroke-width="0.5" opacity="0.3" />
-            
-            <line x1="60%" y1="25%" x2="60%" y2="50%" stroke="url(#gridGradient1)" stroke-width="0.5" opacity="0.3" />
-            <line x1="60%" y1="50%" x2="60%" y2="75%" stroke="url(#gridGradient1)" stroke-width="0.5" opacity="0.3" />
-            
-            <line x1="80%" y1="25%" x2="80%" y2="50%" stroke="url(#gridGradient1)" stroke-width="0.5" opacity="0.3" />
-            <line x1="80%" y1="50%" x2="80%" y2="75%" stroke="url(#gridGradient1)" stroke-width="0.5" opacity="0.3" />
-        </svg>
+    <div class="score-strip">
+      <div class="score-chip hi"><span class="val">91</span><span class="lbl">Design</span></div>
+      <div class="score-chip"><span class="val">72</span><span class="lbl">Construct</span></div>
+      <div class="score-chip lo"><span class="val">44</span><span class="lbl">Contract</span></div>
+      <div class="score-chip"><span class="val">68</span><span class="lbl">Grid</span></div>
+      <div class="score-chip hi"><span class="val">85</span><span class="lbl">Permit</span></div>
+      <div class="score-chip lo"><span class="val">55</span><span class="lbl">Finance</span></div>
     </div>
+  </div>
 
-    <!-- Network Constellation -->
-    <div class="network-visualization" id="network"></div>
+  <div class="auth-body">
+    <!-- LEFT: forms -->
+    <div class="auth-panel left">
+      <div class="tab-row">
+        <button class="tab-btn active" id="tab-li" onclick="switchTab('login')">Sign In</button>
+        <button class="tab-btn" id="tab-su" onclick="switchTab('signup')">Create Account</button>
+      </div>
 
-    <!-- Binary Background -->
-    <div class="binary-background" id="binaryBg"></div>
-
-    <!-- Floating Data Particles -->
-    <div class="floating-particles">
-        <div class="particle particle-1"></div>
-        <div class="particle particle-2"></div>
-        <div class="particle particle-3"></div>
-    </div>
-
-    <!-- Main Content -->
-    <div class="content">
-        <div class="content-wrapper">
-            <!-- Company Name with Glitch Effect -->
-            <div class="title-container">
-                <h1 class="title main-title">SunHash</h1>
-                <h1 class="title glitch-1">SunHash</h1>
-                <h1 class="title glitch-2">SunHash</h1>
-            </div>
-
-            <!-- Tagline -->
-            <p class="tagline">Smart Escrow 4 Solar Utility Scale Projects</p>
-
-            <!-- Geometric Accent Lines -->
-            <div class="accent-lines">
-                <div class="line line-left"></div>
-                <div class="diamond"></div>
-                <div class="line line-right"></div>
-            </div>
-
-            <!-- Status Indicator -->
-            <div class="status-indicator">
-                <span class="pulse-container">
-                    <span class="pulse-ring"></span>
-                    <span class="pulse-dot"></span>
-                </span>
-                <span class="status-text">COMING SOON</span>
-            </div>
+      <!-- LOGIN -->
+      <div id="form-login">
+        <button class="btn-google" onclick="authGoogle()">
+          <svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+          Continue with Google
+        </button>
+        <div class="or-row">OR</div>
+        <div class="field"><label>Email</label><input type="email" id="li-email" placeholder="you@company.com"/></div>
+        <div class="field"><label>Password</label><input type="password" id="li-pw" placeholder="••••••••"/></div>
+        <button class="btn-primary" id="btn-li" onclick="doLogin()">Sign In →</button>
+        <div class="msg" id="li-msg"></div>
+        <div style="margin-top:16px;text-align:center;">
+          <a href="#" onclick="showReset()" style="font-size:13px;color:var(--gray-dk);text-decoration:underline;">Forgot password?</a>
         </div>
+      </div>
+
+      <!-- SIGN UP -->
+      <div id="form-signup" style="display:none">
+        <button class="btn-google" onclick="authGoogle()">
+          <svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+          Continue with Google
+        </button>
+        <div class="or-row">OR</div>
+        <div class="field"><label>Email</label><input type="email" id="su-email" placeholder="you@company.com"/></div>
+        <div class="field"><label>Password <span style="font-weight:400;letter-spacing:0;text-transform:none">(min. 8 characters)</span></label><input type="password" id="su-pw" placeholder="••••••••"/></div>
+        <button class="btn-primary" id="btn-su" onclick="doSignup()">Create Account →</button>
+        <div class="msg" id="su-msg"></div>
+      </div>
+
+      <!-- RESET PASSWORD -->
+      <div id="form-reset" style="display:none">
+        <div style="margin-bottom:20px;">
+          <p style="font-size:14px;color:var(--gray-dk);line-height:1.6;">Enter your email and we'll send you a link to reset your password.</p>
+        </div>
+        <div class="field"><label>Email</label><input type="email" id="rs-email" placeholder="you@company.com"/></div>
+        <button class="btn-primary" onclick="doReset()">Send Reset Link →</button>
+        <div class="msg" id="rs-msg"></div>
+        <div style="margin-top:16px;text-align:center;">
+          <a href="#" onclick="switchTab('login')" style="font-size:13px;color:var(--gray-dk);text-decoration:underline;">← Back to sign in</a>
+        </div>
+      </div>
     </div>
 
-    <!-- Corner Gradients -->
-    <div class="gradient-top-left"></div>
-    <div class="gradient-bottom-right"></div>
-    <div class="gradient-top-right"></div>
+    <!-- RIGHT: how it works -->
+    <div class="auth-panel right">
+      <div class="panel-tag">How it works</div>
+      <div class="panel-title">Four steps to your risk report</div>
+      <div class="how-steps">
+        <div class="how-step">
+          <div class="how-num">01</div>
+          <div class="how-text">
+            <h4>Project intake</h4>
+            <p>Define your project type, size, stage, and procurement model. This sets the conditional logic for all downstream questions.</p>
+          </div>
+        </div>
+        <div class="how-step">
+          <div class="how-num">02</div>
+          <div class="how-text">
+            <h4>Answer or upload</h4>
+            <p>Work through structured questions or upload your geotech report, design basis, or EPC offer. The AI extracts what it can and asks only for the gaps.</p>
+          </div>
+        </div>
+        <div class="how-step">
+          <div class="how-num">03</div>
+          <div class="how-text">
+            <h4>Receive your scored report</h4>
+            <p>A PDF with six category scores, critical issues, action plan, and data gaps — within minutes of submission.</p>
+          </div>
+        </div>
+        <div class="how-step">
+          <div class="how-num">04</div>
+          <div class="how-text">
+            <h4>Enrich with specialists</h4>
+            <p>Invite your EPC, engineer, or legal counsel to fill their sections. Each response automatically updates your score.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
-    <script src="script.js"></script>
+<!-- ── ONBOARDING ──────────────────────────────────────── -->
+<div class="screen" id="screen-onboarding">
+  <div class="ob-wrap">
+    <div class="ob-logo">Sun<span>Hash</span></div>
+    <div class="ob-progress">
+      <div class="ob-seg done"></div>
+      <div class="ob-seg done"></div>
+      <div class="ob-seg"></div>
+    </div>
+    <div class="ob-header">
+      <div class="ob-step-tag">Step 2 of 3 — One-time setup</div>
+      <h2>Tell us about yourself</h2>
+      <p>30 seconds. Personalises your reports and dashboard.</p>
+    </div>
+    <div class="ob-card">
+      <div class="field"><label>Full name</label><input type="text" id="ob-name" placeholder="Alessandro Rossi"/></div>
+      <div class="field"><label>Company name</label><input type="text" id="ob-company" placeholder="Helios Energy Srl"/></div>
+      <div class="field">
+        <label>Your role</label>
+        <select id="ob-role">
+          <option value="" disabled selected>Select role…</option>
+          <option>Developer / Project Owner</option>
+          <option>Investor / Lender</option>
+          <option>EPC Contractor</option>
+          <option>Independent Engineer</option>
+          <option>Legal Counsel</option>
+          <option>Financial Advisor</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Country</label>
+        <select id="ob-country">
+          <option value="" disabled selected>Select country…</option>
+          <optgroup label="Europe">
+            <option>Italy</option><option>Spain</option><option>France</option>
+            <option>Germany</option><option>United Kingdom</option><option>Portugal</option>
+            <option>Netherlands</option><option>Poland</option><option>Greece</option>
+            <option>Romania</option><option>Other Europe</option>
+          </optgroup>
+          <optgroup label="Americas">
+            <option>United States</option><option>Canada</option><option>Brazil</option>
+            <option>Mexico</option><option>Chile</option><option>Other Americas</option>
+          </optgroup>
+          <optgroup label="Middle East & Africa">
+            <option>UAE</option><option>Saudi Arabia</option><option>South Africa</option><option>Other MEA</option>
+          </optgroup>
+          <optgroup label="Asia Pacific">
+            <option>Australia</option><option>India</option><option>Japan</option><option>Other APAC</option>
+          </optgroup>
+        </select>
+      </div>
+      <button class="btn-primary" id="btn-ob" onclick="saveProfile()" style="margin-top:8px;">Go to My Dashboard →</button>
+      <div class="msg" id="ob-msg"></div>
+    </div>
+    <div class="ob-note">Your data is encrypted and never shared with third parties.</div>
+  </div>
+</div>
+
+<script>
+// ── CONFIG ────────────────────────────────────────────────────
+const SUPABASE_URL  = https://pyetvugwochlqdxjchwp.supabase.co;
+const SUPABASE_KEY  = sb_publishable_wcO7yhermAiLYrltUILrlw_thJ-I-de;
+// ─────────────────────────────────────────────────────────────
+
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => { s.classList.remove('active'); s.style.display='none'; });
+  const el = document.getElementById('screen-' + id);
+  el.style.display = 'flex';
+  setTimeout(() => el.classList.add('active'), 10);
+}
+
+function setMsg(id, text, type) {
+  const el = document.getElementById(id);
+  el.textContent = text;
+  el.className = 'msg ' + (type || '');
+}
+
+function switchTab(tab) {
+  document.getElementById('form-login').style.display  = tab === 'login'  ? 'block' : 'none';
+  document.getElementById('form-signup').style.display = tab === 'signup' ? 'block' : 'none';
+  document.getElementById('form-reset').style.display  = 'none';
+  document.getElementById('tab-li').classList.toggle('active', tab === 'login');
+  document.getElementById('tab-su').classList.toggle('active', tab === 'signup');
+}
+
+function showReset() {
+  document.getElementById('form-login').style.display  = 'none';
+  document.getElementById('form-signup').style.display = 'none';
+  document.getElementById('form-reset').style.display  = 'block';
+  document.getElementById('tab-li').classList.remove('active');
+  document.getElementById('tab-su').classList.remove('active');
+}
+
+async function authGoogle() {
+  // Works on both root and subdirectory GitHub Pages deployments
+  const base = window.location.href.replace(/\/[^/]*$/, '/');
+  const { error } = await sb.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: base + 'dashboard.html' }
+  });
+  if (error) alert(error.message);
+}
+
+async function doLogin() {
+  const btn = document.getElementById('btn-li');
+  btn.disabled = true; btn.textContent = 'Signing in…';
+  const { error } = await sb.auth.signInWithPassword({
+    email: document.getElementById('li-email').value,
+    password: document.getElementById('li-pw').value,
+  });
+  btn.disabled = false; btn.textContent = 'Sign In →';
+  if (error) { setMsg('li-msg', error.message, 'err'); return; }
+  window.location.href = 'dashboard.html';
+}
+
+async function doSignup() {
+  const btn = document.getElementById('btn-su');
+  btn.disabled = true; btn.textContent = 'Creating account…';
+  const { error } = await sb.auth.signUp({
+    email: document.getElementById('su-email').value,
+    password: document.getElementById('su-pw').value,
+  });
+  btn.disabled = false; btn.textContent = 'Create Account →';
+  if (error) { setMsg('su-msg', error.message, 'err'); return; }
+  // Check if profile exists
+  const { data: { user } } = await sb.auth.getUser();
+  if (user) {
+    const { data: profile } = await sb.from('profiles').select('full_name').eq('id', user.id).single();
+    if (profile?.full_name) { window.location.href = 'dashboard.html'; }
+    else { show('onboarding'); }
+  } else {
+    setMsg('su-msg', 'Check your email to confirm your account.', 'ok');
+  }
+}
+
+async function doReset() {
+  const email = document.getElementById('rs-email').value;
+  const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: window.location.href.replace(/\/[^/]*$/, '/') + 'profile.html' });
+  if (error) { setMsg('rs-msg', error.message, 'err'); }
+  else { setMsg('rs-msg', 'Reset link sent — check your inbox.', 'ok'); }
+}
+
+async function saveProfile() {
+  const btn = document.getElementById('btn-ob');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  const { data: { user } } = await sb.auth.getUser();
+  const { error } = await sb.from('profiles').upsert({
+    id: user.id,
+    full_name: document.getElementById('ob-name').value,
+    company:   document.getElementById('ob-company').value,
+    role:      document.getElementById('ob-role').value,
+    country:   document.getElementById('ob-country').value,
+  });
+  btn.disabled = false; btn.textContent = 'Go to My Dashboard →';
+  if (error) { setMsg('ob-msg', error.message, 'err'); return; }
+  window.location.href = 'dashboard.html';
+}
+
+// ── INIT ──────────────────────────────────────────────────────
+(async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) {
+    const { data: profile } = await sb.from('profiles').select('full_name').eq('id', session.user.id).single();
+    if (profile?.full_name) { window.location.href = 'dashboard.html'; return; }
+    else { show('onboarding'); return; }
+  }
+  show('auth');
+})();
+
+// Enter key support
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  if (document.getElementById('form-login').style.display !== 'none') doLogin();
+  else if (document.getElementById('form-signup').style.display !== 'none') doSignup();
+});
+</script>
 </body>
 </html>
