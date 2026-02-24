@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>SunHash — Dashboard</title>
+<title>SunHash -- Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
@@ -134,9 +134,9 @@ a{text-decoration:none;}
   <div class="logo">Sun<span>Hash</span></div>
   <div class="tb-right">
     <a href="profile.html" class="user-pill">
-      <div class="av" id="dash-av">—</div>
+      <div class="av" id="dash-av">--</div>
       <div>
-        <div class="tb-name" id="dash-name">Loading…</div>
+        <div class="tb-name" id="dash-name">Loading...</div>
         <div class="tb-co" id="dash-co"></div>
       </div>
     </a>
@@ -148,7 +148,7 @@ a{text-decoration:none;}
   <div class="hero">
     <div>
       <div class="hero-tag">Risk Intelligence Platform</div>
-      <h1>Welcome back,<br><em id="dash-first">—</em></h1>
+      <h1>Welcome back,<br><em id="dash-first">--</em></h1>
       <div class="hero-sub">Start a new assessment or review your project history below.</div>
     </div>
     <button class="btn-new" onclick="openAssessment()">
@@ -160,7 +160,7 @@ a{text-decoration:none;}
   <div class="stats">
     <div class="stat"><div class="stat-lbl">Assessments</div><div class="stat-val" id="st-count">0</div><div class="stat-sub">projects assessed</div></div>
     <div class="stat"><div class="stat-lbl">Reports</div><div class="stat-val" id="st-reports">0</div><div class="stat-sub">reports generated</div></div>
-    <div class="stat"><div class="stat-lbl">Avg. score</div><div class="stat-val" id="st-avg">—</div><div class="stat-sub">across all projects</div></div>
+    <div class="stat"><div class="stat-lbl">Avg. score</div><div class="stat-val" id="st-avg">--</div><div class="stat-sub">across all projects</div></div>
     <div class="stat"><div class="stat-lbl">In progress</div><div class="stat-val" id="st-prog">0</div><div class="stat-sub">awaiting completion</div></div>
   </div>
 
@@ -174,7 +174,7 @@ a{text-decoration:none;}
       </div>
       <div class="search-wrap">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input type="text" class="search-input" placeholder="Search projects…" oninput="applyFilters(this.value)"/>
+        <input type="text" class="search-input" placeholder="Search projects..." oninput="applyFilters(this.value)"/>
       </div>
     </div>
     <div class="grid" id="card-grid"></div>
@@ -202,17 +202,17 @@ a{text-decoration:none;}
 </div>
 
 <script>
-// ── CONFIG ────────────────────────────────────────────────────
+// -- CONFIG ----------------------------------------------------
 const SUPABASE_URL  = https://pyetvugwochlqdxjchwp.supabase.co;
 const SUPABASE_KEY  = sb_publishable_wcO7yhermAiLYrltUILrlw_thJ-I-de;
 const TALLY_FORM_ID = https://tally.so/r/BzXLPR;
-//─────────────────────────────────────────────────────────────
+// -------------------------------------------------------------
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let allProjects = [];
 let currentFilter = 'all';
 let currentUser = null;
 
-// ── AUTH — single source of truth ────────────────────────────
+// -- AUTH -- single source of truth ----------------------------
 // onAuthStateChange fires reliably after OAuth hash is parsed.
 // We never redirect to login unless we get an explicit null session.
 sb.auth.onAuthStateChange((event, session) => {
@@ -225,7 +225,7 @@ sb.auth.onAuthStateChange((event, session) => {
   }
 });
 
-// ── PROFILE ───────────────────────────────────────────────────
+// -- PROFILE ---------------------------------------------------
 async function loadProfile(user) {
   const { data } = await sb.from('profiles')
     .select('first_name, last_name, company')
@@ -241,7 +241,7 @@ async function loadProfile(user) {
   document.getElementById('dash-first').textContent = first;
 }
 
-// ── PROJECTS ──────────────────────────────────────────────────
+// -- PROJECTS --------------------------------------------------
 async function loadProjects(userId) {
   const { data } = await sb.from('projects')
     .select('*')
@@ -260,7 +260,7 @@ function renderStats() {
     : null;
   document.getElementById('st-count').textContent   = allProjects.length;
   document.getElementById('st-reports').textContent = complete.length;
-  document.getElementById('st-avg').textContent     = avg ?? '—';
+  document.getElementById('st-avg').textContent     = avg ?? '--';
   document.getElementById('st-prog').textContent    = allProjects.filter(p=>p.status==='in-progress').length;
   document.getElementById('fc-all').textContent      = allProjects.length;
   document.getElementById('fc-complete').textContent = complete.length;
@@ -296,16 +296,16 @@ function makeCard(p) {
   div.dataset.name = (p.name || '').toLowerCase();
   div.innerHTML = `
     <div class="acard-hdr">
-      <div class="acard-stage">${p.stage || 'Pre-construction'} · ${p.capacity_mw ? p.capacity_mw+' MWp' : 'Size TBD'}</div>
+      <div class="acard-stage">${p.stage || 'Pre-construction'} . ${p.capacity_mw ? p.capacity_mw+' MWp' : 'Size TBD'}</div>
       <div class="acard-name">${p.name || 'Unnamed Project'}</div>
       <div class="acard-meta">${p.location || 'Location not set'}</div>
     </div>
     <div class="acard-scores">
       <div class="sc-circle ${sc_overall != null ? sc(sc_overall) : ''}">
-        <div class="sc-v">${sc_overall ?? '—'}</div>
+        <div class="sc-v">${sc_overall ?? '--'}</div>
         <div class="sc-l">Score</div>
       </div>
-      <div class="sc-bars">${bars || '<div style="font-size:12px;color:var(--gray-dk);padding:8px 0;">Assessment in progress…</div>'}</div>
+      <div class="sc-bars">${bars || '<div style="font-size:12px;color:var(--gray-dk);padding:8px 0;">Assessment in progress...</div>'}</div>
     </div>
     <div class="acard-ftr">
       <span class="acard-date">${date}</span>
@@ -341,7 +341,7 @@ function applyFilters(q = '') {
   renderCards(list);
 }
 
-// ── TALLY ─────────────────────────────────────────────────────
+// -- TALLY -----------------------------------------------------
 function openAssessment() {
   document.getElementById('tally-frame').src = `https://tally.so/embed/${TALLY_FORM_ID}?transparentBackground=1`;
   document.getElementById('overlay').classList.add('open');
