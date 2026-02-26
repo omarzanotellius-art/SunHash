@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>SunHash - Project Overview</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', sans-serif; background: #eef0f4; color: #1a1f2e; min-height: 100vh; }
+body.hidden { visibility: hidden; }
+a { text-decoration: none; }
+.topbar { position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: 56px; background: #111; border-bottom: 3px solid #FFFF00; display: flex; align-items: center; justify-content: space-between; padding: 0 32px; }
+.logo { font-size: 22px; font-weight: 900; letter-spacing: 0.3px; text-transform: uppercase; color: #fff; }
+.logo span { color: #FFFF00; }
+.tb-right { display: flex; align-items: center; gap: 10px; }
+.btn-back { padding: 7px 16px; border: none; background: rgba(255,255,255,0.1); color: #aaa; font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 0.1px; text-transform: uppercase; border-radius: 20px; cursor: pointer; transition: all .15s; }
+.btn-back:hover { background: rgba(255,255,255,0.2); color: #fff; }
+.btn-out { background: none; border: 1px solid #444; color: #777; font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 700; padding: 7px 14px; cursor: pointer; text-transform: uppercase; border-radius: 20px; }
+.btn-out:hover { border-color: #E83535; color: #E83535; }
+.page { padding-top: 56px; }
+.hero { background: #111; padding: 48px 40px 40px; position: relative; overflow: hidden; }
+.hero::after { content: ''; position: absolute; top: -60px; right: -60px; width: 260px; height: 260px; border-radius: 50%; background: rgba(255,255,0,0.04); pointer-events: none; }
+.hero-tag { font-size: 11px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; color: #FFFF00; margin-bottom: 10px; opacity: 0.8; }
+.hero h1 { font-size: 44px; font-weight: 900; letter-spacing: -1.5px; color: #fff; line-height: 1; }
+.hero-sub { font-size: 14px; color: #555; margin-top: 10px; font-weight: 500; }
+.body { max-width: 960px; margin: 0 auto; padding: 36px 32px 80px; }
+.ov-card { background: #dde1ea; border-radius: 16px; padding: 28px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); margin-bottom: 20px; }
+.ov-card-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #5a6474; margin-bottom: 16px; }
+.info-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.info-row { background: rgba(255,255,255,0.45); border-radius: 10px; padding: 14px 16px; }
+.info-lbl { font-size: 10px; font-weight: 700; text-transform: uppercase; color: #6b7585; margin-bottom: 5px; letter-spacing: 0.3px; }
+.info-val { font-size: 15px; font-weight: 700; color: #1a1f2e; }
+.info-val a { color: #1a1f2e; text-decoration: underline; }
+.coming-soon { background: #dde1ea; border-radius: 16px; padding: 56px 40px; text-align: center; box-shadow: 0 2px 12px rgba(0,0,0,0.07); }
+.coming-soon h2 { font-size: 28px; font-weight: 900; letter-spacing: -0.5px; margin-bottom: 10px; }
+.coming-soon p { font-size: 14px; color: #6b7585; line-height: 1.7; max-width: 480px; margin: 0 auto 28px; }
+.sections { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-top: 20px; }
+.sec-card { background: rgba(255,255,255,0.4); border-radius: 12px; padding: 22px; }
+.sec-num { font-size: 11px; font-weight: 900; color: #FFFF00; background: #1a1f2e; display: inline-block; padding: 3px 10px; border-radius: 6px; margin-bottom: 12px; letter-spacing: 0.5px; }
+.sec-card h3 { font-size: 13px; font-weight: 800; text-transform: uppercase; margin-bottom: 6px; color: #1a1f2e; }
+.sec-card p { font-size: 12px; color: #6b7585; line-height: 1.6; }
+.btn-big { display: inline-block; padding: 13px 28px; background: #1a1f2e; color: #FFFF00; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; cursor: pointer; border-radius: 30px; border: none; transition: all .15s; }
+.btn-big:hover { background: #FFFF00; color: #1a1f2e; }
+@media(max-width:700px){ .sections { grid-template-columns: 1fr; } .info-grid { grid-template-columns: 1fr 1fr; } }
+.ai-card { background: #1a1f2e; border-radius: 16px; padding: 28px; box-shadow: 0 2px 16px rgba(0,0,0,0.12); margin-bottom: 20px; }
+.ai-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+.ai-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: #FFFF00; opacity: 0.8; }
+.ai-model { font-size: 10px; color: #444; font-weight: 500; }
+.ai-text { font-size: 14px; color: #ccc; line-height: 1.8; }
+.ai-text p { margin-bottom: 14px; }
+.ai-text p:last-child { margin-bottom: 0; }
+.ai-loading { display: flex; align-items: center; gap: 10px; color: #555; font-size: 13px; }
+.ai-dot { width: 6px; height: 6px; border-radius: 50%; background: #FFFF00; animation: pulse 1.2s ease-in-out infinite; }
+.ai-dot:nth-child(2) { animation-delay: 0.2s; }
+.ai-dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes pulse { 0%,80%,100% { opacity: 0.2; transform: scale(0.8); } 40% { opacity: 1; transform: scale(1.1); } }
+.ai-error { font-size: 13px; color: #c0392b; }
+.btn-regen { padding: 5px 14px; border: 1px solid #333; background: none; color: #555; font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 600; cursor: pointer; border-radius: 20px; transition: all .15s; }
+.btn-regen:hover { border-color: #FFFF00; color: #FFFF00; }
+</style>
+</head>
+<body class="hidden">
+
+<div class="topbar">
+  <a href="dashboard.html" class="logo">Sun<span>Hash</span></a>
+  <div class="tb-right">
+    <a href="dashboard.html" class="btn-back">Back to Dashboard</a>
+    <button class="btn-out" onclick="sb.auth.signOut()">Sign Out</button>
+  </div>
+</div>
+
+<div class="page">
+  <div class="hero">
+    <div class="hero-tag">Project Overview</div>
+    <h1 id="hero-name">Loading...</h1>
+    <div class="hero-sub" id="hero-sub"></div>
+  </div>
+
+
+
+  <div class="body">
+    <!-- Project info card -->
+    <div class="ov-card" id="info-grid" style="display:none;">
+      <div class="ov-card-title">Project Details</div>
+      <div class="info-grid">
+        <div class="info-row"><div class="info-lbl">Location</div><div class="info-val" id="inf-location">-</div></div>
+        <div class="info-row"><div class="info-lbl">Capacity</div><div class="info-val" id="inf-capacity">-</div></div>
+        <div class="info-row"><div class="info-lbl">Stage</div><div class="info-val" id="inf-stage">-</div></div>
+        <div class="info-row"><div class="info-lbl">Status</div><div class="info-val" id="inf-status">-</div></div>
+        <div class="info-row"><div class="info-lbl">Overall Score</div><div class="info-val" id="inf-score">-</div></div>
+        <div class="info-row"><div class="info-lbl">Created</div><div class="info-val" id="inf-date">-</div></div>
+      </div>
+    </div>
+
+    <!-- AI Summary Card -->
+    <div class="ai-card" id="ai-card">
+      <div class="ai-card-header">
+        <span class="ai-label">AI Project Brief</span>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span class="ai-model">gpt-4o-mini</span>
+          <button class="btn-regen" id="btn-regen" onclick="generateSummary(true)" style="display:none;">Regenerate</button>
+        </div>
+      </div>
+      <div id="ai-content">
+        <div class="ai-loading">
+          <div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div>
+          <span>Generating project brief...</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="coming-soon">
+      <h2>Full Report Coming Soon</h2>
+      <p>This page will show the complete risk assessment report, including all six category scores, detailed findings, critical issues, and an action plan.</p>
+      <a href="dashboard.html" class="btn-big">Back to Dashboard</a>
+      <div class="sections">
+        <div class="sec-card"><div class="sec-num">01</div><h3>Risk Scores</h3><p>Six weighted category scores with breakdowns and benchmarks against comparable projects.</p></div>
+        <div class="sec-card"><div class="sec-num">02</div><h3>Critical Issues</h3><p>Ranked list of issues requiring immediate attention before proceeding to next project phase.</p></div>
+        <div class="sec-card"><div class="sec-num">03</div><h3>Action Plan</h3><p>Prioritized recommendations with suggested owners, timelines, and expected impact on score.</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+var SUPABASE_URL = "https://pyetvugwochlqdxjchwp.supabase.co";
+var SUPABASE_KEY = "sb_publishable_wcO7yhermAiLYrltUILrlw_thJ-I-de";
+var sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+var authResolved = false;
+var authTimeout = setTimeout(function() {
+  if (!authResolved) window.location.href = "login.html";
+}, 5000);
+
+sb.auth.onAuthStateChange(function(event, session) {
+  if (session && session.user) {
+    authResolved = true;
+    clearTimeout(authTimeout);
+    document.body.classList.remove("hidden");
+    currentUserId = session.user.id;
+    loadProject(session.user.id);
+  } else if (event === "SIGNED_OUT") {
+    window.location.href = "login.html";
+  } else if (event === "INITIAL_SESSION" && !session) {
+    // No session on first load - wait a moment then redirect
+    setTimeout(function() {
+      if (!authResolved) window.location.href = "login.html";
+    }, 1000);
+  }
+});
+
+function loadProject(userId) {
+  var params = new URLSearchParams(window.location.search);
+  var projectId = params.get("id");
+  if (!projectId) { window.location.href = "dashboard.html"; return; }
+
+  sb.from("projects").select("*").eq("id", projectId).eq("user_id", userId).single()
+    .then(function(res) {
+      if (!res.data) { window.location.href = "dashboard.html"; return; }
+      var p = res.data;
+
+      // Shorten stage
+      var stageShort = (p.stage || "").replace(/\s*\(.*?\)/g, "").trim();
+      stageShort = stageShort.split(" - ").map(function(s){ return s.replace(/\s*\(.*?\)/g,"").trim(); }).join(" - ");
+
+      currentProjectId = p.id;
+      document.getElementById("hero-name").textContent = p.name || "Unnamed Project";
+      document.getElementById("hero-sub").textContent = [
+        p.capacity_mw ? p.capacity_mw + " MWp" : null,
+        stageShort || null
+      ].filter(Boolean).join("  -  ");
+
+      document.getElementById("inf-capacity").textContent = p.capacity_mw ? p.capacity_mw + " MWp" : "-";
+      document.getElementById("inf-stage").textContent = stageShort || "-";
+      document.getElementById("inf-status").textContent = (p.status || "-").replace("-", " ");
+      document.getElementById("inf-score").textContent = p.score_overall != null ? p.score_overall + " / 100" : "Not scored yet";
+      document.getElementById("inf-date").textContent = new Date(p.created_at).toLocaleDateString("en-GB", { day:"2-digit", month:"short", year:"numeric" });
+
+      var locEl = document.getElementById("inf-location");
+      if (p.location && p.location.startsWith("http")) {
+        locEl.innerHTML = '<a href="' + p.location + '" target="_blank">View on Maps</a>';
+      } else {
+        locEl.textContent = p.location || "-";
+      }
+
+        document.getElementById("info-grid").style.display = "grid";
+
+      // Trigger AI summary generation
+      generateSummary(false);
+    });
+}
+
+var currentProjectId = null;
+var currentUserId = null;
+
+function generateSummary(forceRegen) {
+  if (!currentProjectId || !currentUserId) return;
+
+  var contentEl = document.getElementById("ai-content");
+  var regenBtn = document.getElementById("btn-regen");
+
+  // Show loading
+  contentEl.innerHTML = '<div class="ai-loading"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div><span>' + (forceRegen ? "Regenerating..." : "Generating project brief...") + "</span></div>";
+  regenBtn.style.display = "none";
+
+  // Call edge function
+  // If forceRegen, pass a flag to bypass cache (we delete the cached value first)
+  var body = { project_id: currentProjectId, user_id: currentUserId };
+
+  // If regenerating, first clear the cached summary then call
+  var prepare = forceRegen
+    ? sb.from("projects").update({ ai_summary: null, ai_summary_at: null }).eq("id", currentProjectId).then(function() { return Promise.resolve(); })
+    : Promise.resolve();
+
+  prepare.then(function() {
+    return fetch("https://pyetvugwochlqdxjchwp.supabase.co/functions/v1/generate-overview", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    });
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.error) {
+      contentEl.innerHTML = '<div class="ai-error">Could not generate brief: ' + data.error + "</div>";
+      return;
+    }
+    // Split paragraphs and render
+    var paras = data.summary.split(/
++/).filter(function(p) { return p.trim(); });
+    contentEl.innerHTML = '<div class="ai-text">' + paras.map(function(p) {
+      return "<p>" + p.trim() + "</p>";
+    }).join("") + "</div>";
+    regenBtn.style.display = "inline-block";
+  })
+  .catch(function(err) {
+    contentEl.innerHTML = '<div class="ai-error">Network error. Please try again.</div>';
+    regenBtn.style.display = "inline-block";
+    console.error(err);
+  });
+}
+</script>
+
+</body>
+</html>
