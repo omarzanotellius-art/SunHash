@@ -212,6 +212,20 @@ body { font-family: 'Inter', sans-serif; background: #0f1117; color: #e0e0e0; mi
 /* ── FIELD REGISTRY PANEL ─────────────────────── */
 .reg-drop-zone{border:2px dashed rgba(255,255,0,0.25);border-radius:12px;padding:40px 24px;text-align:center;cursor:pointer;transition:all .2s;background:rgba(255,255,0,0.02);margin-bottom:16px;}
 .reg-drop-zone:hover,.reg-drop-zone.drag-over{border-color:#FFFF00;background:rgba(255,255,0,0.06);}
+.reg-tab{background:rgba(255,255,255,0.05);color:#888;border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:5px 12px;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;}
+.reg-tab:hover{background:rgba(255,255,0,0.08);color:#ccc;border-color:rgba(255,255,0,0.2);}
+.reg-tab.active{background:rgba(255,255,0,0.12);color:#FFFF00;border-color:rgba(255,255,0,0.35);}
+.reg-tbl{width:100%;border-collapse:collapse;font-size:11px;}
+.reg-tbl th{background:#1a2030;color:#FFFF00;font-weight:700;padding:7px 8px;text-align:left;border-bottom:1px solid rgba(255,255,0,0.15);font-size:10px;text-transform:uppercase;letter-spacing:.3px;}
+.reg-tbl td{padding:5px 8px;border-bottom:1px solid rgba(255,255,255,0.04);vertical-align:middle;}
+.reg-tbl tr:hover td{background:rgba(255,255,255,0.02);}
+.reg-tbl input,.reg-tbl select{background:#0d1220;border:1px solid rgba(255,255,255,0.1);color:#ccc;border-radius:4px;padding:3px 6px;font-size:11px;width:100%;box-sizing:border-box;}
+.reg-tbl input:focus,.reg-tbl select:focus{outline:none;border-color:rgba(255,255,0,0.4);}
+.reg-sec-row td{background:#131828;color:#7aa3f5;font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.4px;padding:8px 8px 4px;}
+.reg-del-btn{background:none;border:none;color:#c0392b;cursor:pointer;font-size:13px;padding:0 4px;opacity:.6;}
+.reg-del-btn:hover{opacity:1;}
+.reg-key-cell{color:#7aa3f5;font-family:monospace;font-size:10px;}
+
 .reg-drop-icon{font-size:36px;margin-bottom:10px;}
 .reg-drop-text{font-size:13px;font-weight:700;color:#ccc;margin-bottom:4px;}
 .reg-drop-sub{font-size:11px;color:#444;}
@@ -349,41 +363,69 @@ body { font-family: 'Inter', sans-serif; background: #0f1117; color: #e0e0e0; mi
       <!-- FIELD REGISTRY -->
       <div class="admin-panel" id="panel-registry">
         <div class="panel-title">Field Registry</div>
-        <div class="panel-sub">One Excel file controls all 7 category buttons, Design Array sub-sections, Crews, Procurement Contracts, Components, Suppliers, Equipment and the Intake form. Field IDs are immutable — labels, types, options and sections update on next page load.</div>
+        <div class="panel-sub">Edit fields directly in-app, or bulk-upload via Excel. Changes publish instantly to Supabase and take effect on the next page load in the app.</div>
 
-        <!-- Status row -->
+        <!-- Status + actions -->
         <div class="admin-card" style="margin-bottom:14px;">
-          <div class="admin-card-title">Active Registry</div>
-          <div id="reg-cur-status" class="fr-status-bar none" style="margin-bottom:8px;">
-            <div class="fr-status-dot"></div>
-            <div class="fr-status-text" id="reg-cur-status-txt">No registry published yet.</div>
-            <div class="fr-badge" id="reg-cur-badge" style="display:none;"></div>
-          </div>
-          <div style="display:flex;gap:24px;flex-wrap:wrap;margin-top:4px;">
-            <div><div style="font-size:9px;text-transform:uppercase;color:#444;letter-spacing:.4px;">Version</div><div id="reg-cur-version" style="font-size:12px;color:#FFFF00;font-weight:700;">—</div></div>
-            <div><div style="font-size:9px;text-transform:uppercase;color:#444;letter-spacing:.4px;">Published</div><div id="reg-cur-date" style="font-size:11px;color:#888;">—</div></div>
-            <div><div style="font-size:9px;text-transform:uppercase;color:#444;letter-spacing:.4px;">Sheets</div><div id="reg-cur-cats" style="font-size:12px;color:#aaa;font-weight:700;">—</div></div>
-            <div><div style="font-size:9px;text-transform:uppercase;color:#444;letter-spacing:.4px;">Total Fields</div><div id="reg-cur-fields" style="font-size:12px;color:#aaa;font-weight:700;">—</div></div>
-          </div>
-          <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
-            <button class="save-btn" style="background:rgba(122,163,245,0.15);color:#7aa3f5;border:1px solid rgba(122,163,245,0.3);" onclick="regDownloadTemplate()">⬇ Download Latest Template</button>
-            <button class="save-btn" style="background:rgba(255,255,255,0.06);color:#888;" onclick="regQuerySupabase()">🔍 Query Supabase</button>
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+            <div>
+              <div style="font-size:10px;text-transform:uppercase;color:#555;letter-spacing:.4px;margin-bottom:4px;">Active Version</div>
+              <div id="reg-cur-version" style="font-size:13px;color:#FFFF00;font-weight:700;">—</div>
+              <div id="reg-cur-date" style="font-size:10px;color:#555;margin-top:2px;">—</div>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button class="save-btn" style="background:rgba(122,163,245,0.15);color:#7aa3f5;border:1px solid rgba(122,163,245,0.25);" onclick="regDownloadExcel()">⬇ Download Excel</button>
+              <button class="save-btn" style="background:rgba(255,255,0,0.08);color:#FFFF00;border:1px solid rgba(255,255,0,0.2);" onclick="regQuerySupabase()">🔍 Inspect Supabase</button>
+            </div>
           </div>
         </div>
 
-        <!-- Upload -->
-        <div class="admin-card">
-          <div class="admin-card-title">Upload New Registry</div>
+        <!-- Tab bar -->
+        <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:14px;" id="reg-tab-bar">
+          <button class="reg-tab active" onclick="regShowTab('cat','Design & Engineering')" data-tab="cat" data-cat="Design & Engineering">📐 Design</button>
+          <button class="reg-tab" onclick="regShowTab('cat','Construction')" data-tab="cat" data-cat="Construction">🏗️ Construct</button>
+          <button class="reg-tab" onclick="regShowTab('cat','Permitting')" data-tab="cat" data-cat="Permitting">📋 Permit</button>
+          <button class="reg-tab" onclick="regShowTab('cat','Procurement')" data-tab="cat" data-cat="Procurement">📦 Procure</button>
+          <button class="reg-tab" onclick="regShowTab('cat','Legal & Contract')" data-tab="cat" data-cat="Legal & Contract">⚖️ Legal</button>
+          <button class="reg-tab" onclick="regShowTab('cat','Grid Interconnection')" data-tab="cat" data-cat="Grid Interconnection">🔌 Grid</button>
+          <button class="reg-tab" onclick="regShowTab('cat','Financial')" data-tab="cat" data-cat="Financial">💰 Finance</button>
+          <button class="reg-tab" onclick="regShowTab('arrays','')" data-tab="arrays">☀️ Arrays</button>
+          <button class="reg-tab" onclick="regShowTab('crews','')" data-tab="crews">👷 Crews</button>
+          <button class="reg-tab" onclick="regShowTab('components','')" data-tab="components">⚙️ Components</button>
+          <button class="reg-tab" onclick="regShowTab('suppliers','')" data-tab="suppliers">🏢 Suppliers</button>
+          <button class="reg-tab" onclick="regShowTab('equipment','')" data-tab="equipment">🚜 Equipment</button>
+          <button class="reg-tab" onclick="regShowTab('upload','')" data-tab="upload">📊 Excel Upload</button>
+        </div>
+
+        <!-- Field editor card -->
+        <div class="admin-card" id="reg-editor-card">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+            <div class="admin-card-title" id="reg-editor-title" style="margin:0;">Select a tab</div>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <button class="save-btn" onclick="regAddField()" id="reg-add-btn" style="display:none;font-size:11px;padding:5px 12px;">+ Add Field</button>
+              <button class="save-btn" onclick="regSaveTab()" id="reg-save-tab-btn" style="display:none;font-size:11px;padding:5px 12px;">✓ Save</button>
+              <span class="save-msg" id="reg-save-msg" style="font-size:11px;"></span>
+            </div>
+          </div>
+          <div id="reg-field-table" style="overflow-x:auto;"></div>
+        </div>
+
+        <!-- Excel upload card -->
+        <div class="admin-card" id="reg-upload-card" style="display:none;">
+          <div class="admin-card-title">Bulk Upload via Excel</div>
+          <div style="font-size:11px;color:#555;margin-bottom:10px;line-height:1.7;">
+            Use the downloaded template. Each sheet maps to one builder type.<br>
+            <strong style="color:#aaa;">Column order matters:</strong> A=Group/Section, B=blank, C=Field Label, D=Field Key (immutable), E=Type, F=Options (/ separated)
+          </div>
           <div class="reg-warn" id="reg-warn"></div>
           <div class="reg-drop-zone" id="reg-drop-zone"
                onclick="document.getElementById('reg-file-input').click()"
                ondragover="regDragOver(event)" ondragleave="regDragLeave(event)" ondrop="regDrop(event)">
             <div class="reg-drop-icon">📊</div>
-            <div class="reg-drop-text">Drop SunHash_Full_Field_Registry.xlsx here</div>
-            <div class="reg-drop-sub">14 sheets: 7 category specs · Design Arrays · Crews · Contracts · Components · Suppliers · Equipment · Intake</div>
+            <div class="reg-drop-text">Drop SunHash_Field_Registry.xlsx here</div>
+            <div class="reg-drop-sub">or click to browse</div>
           </div>
-          <input type="file" id="reg-file-input" class="reg-file-input" accept=".xlsx" onchange="regFileSelected(this)"/>
-
+          <input type="file" id="reg-file-input" accept=".xlsx" style="display:none" onchange="regFileSelected(this)"/>
           <div id="reg-parse-status" style="display:none;margin-top:8px;" class="fr-status-bar none">
             <div class="fr-status-dot"></div>
             <div class="fr-status-text" id="reg-parse-msg">Parsing…</div>
@@ -395,14 +437,13 @@ body { font-family: 'Inter', sans-serif; background: #0f1117; color: #e0e0e0; mi
           </div>
           <div style="display:flex;align-items:center;gap:10px;margin-top:8px;">
             <button class="save-btn" id="reg-publish-btn" onclick="publishRegistry()" style="display:none;">⬆ Publish Registry</button>
-            <span class="save-msg" id="reg-save-msg">Published ✓</span>
           </div>
         </div>
 
-        <!-- Supabase query output -->
+        <!-- Supabase inspect output -->
         <div class="admin-card" id="reg-supabase-out" style="display:none;">
           <div class="admin-card-title">Supabase Registry Data</div>
-          <pre id="reg-supabase-json" style="font-size:10px;color:#7aa3f5;max-height:300px;overflow:auto;white-space:pre-wrap;word-break:break-all;background:#0a0d15;padding:10px;border-radius:6px;"></pre>
+          <pre id="reg-supabase-json" style="font-size:10px;color:#7aa3f5;max-height:300px;overflow:auto;white-space:pre-wrap;word-break:break-all;background:#0a0d15;padding:10px;border-radius:6px;margin:0;"></pre>
         </div>
       </div>
 
@@ -1885,39 +1926,347 @@ function frCancelUpload() {
 
 
 /* ================================================================
-   UNIVERSAL FIELD REGISTRY — parses all 14 sheet types
-   Sheets: 7 category specs | Design Arrays | Crews |
-           Procurement Contracts | Components | Suppliers |
-           Equipment | Intake Questions
-   
-   Every spec sheet uses the legacy column format:
-     Row 1: Category title (merged)
-     Row 2: blank
-     Row 3: Headers — col0=Sub-Category, col2="Field Label", col3=key, col4=type, col5=opts
-     Data rows: section separator (col0 filled, col2/3 blank) OR field row
-   
-   Builder sheets (Design Arrays, Crews, Contracts, Components, Equipment):
-     Row 1: title, Row 2: hint (sheet_type=xxx), Row 3: headers
-     Data rows: section header (merged) OR field row (col0=type/section key)
-   
-   Suppliers sheet: flat — all fields apply to all types
-   Intake sheet: flat — each row = one question
+   FIELD REGISTRY — In-app editor + Excel upload
+   Primary flow: Load from Supabase → edit in table → save directly
+   Secondary:    Upload Excel → parse → preview → publish
    ================================================================ */
 
-var parsedRegistry = null;  // full payload saved to admin_config
+/* ── Tab state ── */
+var regCurrentTab = null;
+var regCurrentCat = null;
 
-/* ── Category key lookup (for the 7 spec sheets) ── */
-var SHEET_TO_CAT = {
+/* ── Live data cache (loaded from Supabase) ── */
+var REG_LIVE = {};
+
+/* ── Category → admin_config key map ── */
+var CAT_TO_KEY = {
   'Design & Engineering':  'score_design',
   'Construction':          'score_construct',
+  'Permitting':            'score_permit',
+  'Procurement':           'score_procurement',
   'Legal & Contract':      'score_contract',
   'Grid Interconnection':  'score_intercon',
   'Financial':             'score_financial',
-  'Permitting':            'score_permit',
-  'Procurement':           'score_procurement',
 };
+var SHEET_TO_CAT = CAT_TO_KEY; // alias for Excel parser
 
-/* ── Drag/drop helpers ── */
+var ALL_REG_KEYS = [
+  'field_registry','field_registry_version','field_registry_date','field_registry_meta',
+  'reg_design_arrays','reg_crews','reg_procurement_contracts',
+  'reg_components','reg_suppliers','reg_equipment'
+];
+
+/* ── Boot: load all registry data from Supabase ── */
+function loadRegistryFromDB(cb) {
+  sb.from('admin_config').select('key,value')
+    .in('key', ALL_REG_KEYS.concat(['field_registry_version','field_registry_date']))
+    .then(function(res) {
+      if (!res.error && res.data) {
+        res.data.forEach(function(r) { REG_LIVE[r.key] = r.value; });
+      }
+      if (cb) cb();
+    });
+}
+
+/* ── Show tab ── */
+function regShowTab(tab, cat) {
+  regCurrentTab = tab;
+  regCurrentCat = cat;
+
+  // Update tab highlight
+  document.querySelectorAll('.reg-tab').forEach(function(b) { b.classList.remove('active'); });
+  var clicked = Array.from(document.querySelectorAll('.reg-tab')).find(function(b) {
+    return b.getAttribute('data-tab') === tab && (b.getAttribute('data-cat')||'') === cat;
+  });
+  if (clicked) clicked.classList.add('active');
+
+  var edCard = document.getElementById('reg-editor-card');
+  var upCard = document.getElementById('reg-upload-card');
+  var sbOut  = document.getElementById('reg-supabase-out');
+
+  edCard.style.display  = (tab === 'upload') ? 'none' : 'block';
+  upCard.style.display  = (tab === 'upload') ? 'block' : 'none';
+  sbOut.style.display   = 'none';
+
+  if (tab === 'upload') return;
+  renderRegTab(tab, cat);
+}
+
+/* ── Render the editable field table for the selected tab ── */
+function renderRegTab(tab, cat) {
+  var title = document.getElementById('reg-editor-title');
+  var table = document.getElementById('reg-field-table');
+  var addBtn = document.getElementById('reg-add-btn');
+  var saveBtn = document.getElementById('reg-save-tab-btn');
+
+  addBtn.style.display  = 'inline-block';
+  saveBtn.style.display = 'inline-block';
+
+  var fields = regGetFields(tab, cat);
+  var label  = cat || tab.charAt(0).toUpperCase() + tab.slice(1);
+  title.textContent = label + ' — ' + fields.length + ' fields';
+
+  var html = '<table class="reg-tbl"><thead><tr>' +
+    '<th style="width:30%">Label</th>' +
+    '<th style="width:22%">Field Key <span style="color:#555;font-weight:400;">(immutable)</span></th>' +
+    '<th style="width:10%">Type</th>' +
+    '<th style="width:10%">Section</th>' +
+    '<th>Options (for select)</th>' +
+    '<th style="width:32px;"></th>' +
+    '</tr></thead><tbody>';
+
+  var lastSec = null;
+  fields.forEach(function(f, i) {
+    var sec = f.section || '';
+    if (sec !== lastSec) {
+      html += '<tr class="reg-sec-row"><td colspan="6">📁 ' + escAdm(sec || 'General') + '</td></tr>';
+      lastSec = sec;
+    }
+    var opts = Array.isArray(f.opts) ? f.opts.filter(Boolean).join(' / ') : (f.opts||'');
+    html += '<tr data-idx="' + i + '">' +
+      '<td><input class="reg-inp-lbl" data-i="' + i + '" value="' + escAdm(f.label||f.lbl||'') + '"></td>' +
+      '<td class="reg-key-cell">' + escAdm(f.id||f.field||'') + '</td>' +
+      '<td><select class="reg-inp-type" data-i="' + i + '">' +
+        ['text','number','select','toggle','date','textarea'].map(function(t){
+          return '<option value="'+t+'"'+(f.type===t?' selected':'')+'>'+t+'</option>';
+        }).join('') +
+      '</select></td>' +
+      '<td><input class="reg-inp-sec" data-i="' + i + '" value="' + escAdm(sec) + '" placeholder="Section"></td>' +
+      '<td><input class="reg-inp-opts" data-i="' + i + '" value="' + escAdm(opts) + '" placeholder="Opt A / Opt B / Opt C"></td>' +
+      '<td><button class="reg-del-btn" onclick="regDeleteField(' + i + ')">✕</button></td>' +
+      '</tr>';
+  });
+
+  html += '</tbody></table>';
+  table.innerHTML = html;
+}
+
+/* ── Get field array for current tab ── */
+function regGetFields(tab, cat) {
+  try {
+    if (tab === 'cat') {
+      var key = CAT_TO_KEY[cat];
+      var raw = REG_LIVE['field_registry'];
+      if (raw) {
+        var reg = JSON.parse(raw);
+        return reg[key] || [];
+      }
+      return [];
+    }
+    var keyMap = {
+      arrays:     'reg_design_arrays',
+      crews:      'reg_crews',
+      components: 'reg_components',
+      suppliers:  'reg_suppliers',
+      equipment:  'reg_equipment',
+    };
+    var dbKey = keyMap[tab];
+    if (!dbKey || !REG_LIVE[dbKey]) return [];
+    var data = JSON.parse(REG_LIVE[dbKey]);
+    // Flatten groups into a single list with section = group key
+    if (Array.isArray(data) && data.length && data[0].fields) {
+      var flat = [];
+      data.forEach(function(g) {
+        (g.fields||[]).forEach(function(f) {
+          flat.push(Object.assign({}, f, { section: g.key }));
+        });
+      });
+      return flat;
+    }
+    return Array.isArray(data) ? data : [];
+  } catch(e) { return []; }
+}
+
+/* ── Collect edits from DOM ── */
+function regCollectEdits() {
+  var rows = document.querySelectorAll('#reg-field-table tbody tr[data-idx]');
+  var fields = regGetFields(regCurrentTab, regCurrentCat);
+  rows.forEach(function(row) {
+    var i   = parseInt(row.getAttribute('data-idx'));
+    var f   = fields[i];
+    if (!f) return;
+    var lbl  = row.querySelector('.reg-inp-lbl');
+    var typ  = row.querySelector('.reg-inp-type');
+    var sec  = row.querySelector('.reg-inp-sec');
+    var opts = row.querySelector('.reg-inp-opts');
+    if (lbl)  { f.label = lbl.value.trim(); f.lbl = f.label; }
+    if (typ)  { f.type  = typ.value; }
+    if (sec)  { f.section = sec.value.trim(); }
+    if (opts) {
+      var raw = opts.value.trim();
+      f.opts = raw ? [''].concat(raw.split('/').map(function(o){return o.trim();}).filter(Boolean)) : [];
+    }
+  });
+  return fields;
+}
+
+/* ── Add a new blank field ── */
+function regAddField() {
+  var fields = regCollectEdits();
+  fields.push({ id: 'field_' + Date.now(), label: 'New Field', lbl: 'New Field', field: 'field_' + Date.now(), type: 'text', opts: [], section: '' });
+  regSetFields(regCurrentTab, regCurrentCat, fields);
+  renderRegTab(regCurrentTab, regCurrentCat);
+}
+
+/* ── Delete a field ── */
+function regDeleteField(i) {
+  var fields = regCollectEdits();
+  fields.splice(i, 1);
+  regSetFields(regCurrentTab, regCurrentCat, fields);
+  renderRegTab(regCurrentTab, regCurrentCat);
+}
+
+/* ── Write edited fields back to REG_LIVE ── */
+function regSetFields(tab, cat, fields) {
+  try {
+    if (tab === 'cat') {
+      var key = CAT_TO_KEY[cat];
+      var reg = {};
+      try { reg = JSON.parse(REG_LIVE['field_registry'] || '{}'); } catch(e) {}
+      reg[key] = fields;
+      REG_LIVE['field_registry'] = JSON.stringify(reg);
+      return;
+    }
+    var keyMap = {
+      arrays:     'reg_design_arrays',
+      crews:      'reg_crews',
+      components: 'reg_components',
+      suppliers:  'reg_suppliers',
+      equipment:  'reg_equipment',
+    };
+    var dbKey = keyMap[tab];
+    if (!dbKey) return;
+    // Re-group by section
+    var groups = {};
+    var order  = [];
+    fields.forEach(function(f) {
+      var sec = f.section || '__default';
+      if (!groups[sec]) { groups[sec] = []; order.push(sec); }
+      groups[sec].push(f);
+    });
+    var grouped = order.filter(function(k,i){ return order.indexOf(k)===i; }).map(function(k) {
+      return { key: k, fields: groups[k].map(function(f){ return Object.assign({},f,{section:undefined}); }) };
+    });
+    REG_LIVE[dbKey] = JSON.stringify(grouped);
+  } catch(e) { console.error('regSetFields error', e); }
+}
+
+/* ── Save current tab to Supabase ── */
+function regSaveTab() {
+  var fields = regCollectEdits();
+  regSetFields(regCurrentTab, regCurrentCat, fields);
+
+  var now    = new Date();
+  var version = regMakeVersion();
+  var saveBtn = document.getElementById('reg-save-tab-btn');
+  var msg     = document.getElementById('reg-save-msg');
+  saveBtn.disabled   = true;
+  saveBtn.textContent = 'Saving…';
+
+  // Determine which keys to save
+  var pairs = [];
+  if (regCurrentTab === 'cat') {
+    pairs.push({ key: 'field_registry', value: REG_LIVE['field_registry'] || '{}' });
+  } else {
+    var keyMap = { arrays:'reg_design_arrays', crews:'reg_crews', components:'reg_components', suppliers:'reg_suppliers', equipment:'reg_equipment' };
+    var dbKey  = keyMap[regCurrentTab];
+    if (dbKey) pairs.push({ key: dbKey, value: REG_LIVE[dbKey] || '[]' });
+  }
+  pairs.push({ key: 'field_registry_version', value: version });
+  pairs.push({ key: 'field_registry_date',    value: now.toISOString() });
+
+  regUpsertAll(pairs, function(err) {
+    saveBtn.disabled   = false;
+    saveBtn.textContent = '✓ Save';
+    if (err) {
+      msg.textContent = 'Error: ' + err; msg.style.color='#e74c3c'; msg.style.opacity=1;
+    } else {
+      msg.textContent = 'Saved ✓'; msg.style.color='#2ecc71'; msg.style.opacity=1;
+      loadRegistryStatus();
+      renderRegTab(regCurrentTab, regCurrentCat);
+    }
+    setTimeout(function(){ msg.style.opacity=0; }, 2500);
+  });
+}
+
+/* ── Upsert array of {key,value} pairs, all in parallel ── */
+function regUpsertAll(pairs, cb) {
+  sb.auth.getSession().then(function(sRes) {
+    var token  = sRes.data && sRes.data.session && sRes.data.session.access_token;
+    var client = token
+      ? supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth:{persistSession:false}, global:{headers:{Authorization:'Bearer '+token}} })
+      : sb;
+    var now = new Date().toISOString();
+    Promise.all(pairs.map(function(p) {
+      return client.from('admin_config').upsert({ key: p.key, value: p.value, updated_at: now }, { onConflict: 'key' });
+    })).then(function(results) {
+      var err = results.find(function(r){ return r.error; });
+      cb(err ? err.error.message : null);
+    }).catch(function(e){ cb(e.message); });
+  });
+}
+
+function regMakeVersion() {
+  var now = new Date();
+  return 'v' + now.getFullYear().toString().slice(2) + '.' +
+    String(now.getMonth()+1).padStart(2,'0') + '.' +
+    String(now.getDate()).padStart(2,'0') + '.' +
+    String(now.getHours()).padStart(2,'0') + String(now.getMinutes()).padStart(2,'0');
+}
+
+/* ── Download Excel (generates from current REG_LIVE data via SheetJS) ── */
+function regDownloadExcel() {
+  if (typeof XLSX === 'undefined') { alert('SheetJS not loaded'); return; }
+  var xlwb = XLSX.utils.book_new();
+  var headers = ['Section','','Field Label','Field Key','Type','Options (/ separated)'];
+
+  function makeSheet(fields) {
+    var rows = [headers];
+    var lastSec = null;
+    fields.forEach(function(f) {
+      var sec = f.section||f.group||'';
+      if (sec !== lastSec) { rows.push([sec,'','','','','']); lastSec = sec; }
+      var opts = Array.isArray(f.opts) ? f.opts.filter(Boolean).join(' / ') : (f.opts||'');
+      rows.push(['', '', f.label||f.lbl||'', f.id||f.field||'', f.type||'text', opts]);
+    });
+    return XLSX.utils.aoa_to_sheet(rows);
+  }
+
+  // Category sheets
+  try {
+    var reg = JSON.parse(REG_LIVE['field_registry'] || '{}');
+    Object.keys(CAT_TO_KEY).forEach(function(catName) {
+      var catKey = CAT_TO_KEY[catName];
+      var fields = reg[catKey] || [];
+      XLSX.utils.book_append_sheet(xlwb, makeSheet(fields), catName.slice(0,31));
+    });
+  } catch(e) {}
+
+  // Builder sheets
+  var builders = [
+    ['Design Arrays',         'reg_design_arrays'],
+    ['Construction Crews',    'reg_crews'],
+    ['Components',            'reg_components'],
+    ['Suppliers',             'reg_suppliers'],
+    ['Equipment',             'reg_equipment'],
+  ];
+  builders.forEach(function(b) {
+    try {
+      var data = JSON.parse(REG_LIVE[b[1]] || '[]');
+      var flat = [];
+      if (data.length && data[0].fields) {
+        data.forEach(function(g) {
+          (g.fields||[]).forEach(function(f) { flat.push(Object.assign({},f,{section:g.key})); });
+        });
+      } else { flat = data; }
+      XLSX.utils.book_append_sheet(xlwb, makeSheet(flat), b[0]);
+    } catch(e) {}
+  });
+
+  XLSX.writeFile(xlwb, 'SunHash_Field_Registry_' + regMakeVersion() + '.xlsx');
+}
+
+/* ── Excel Upload (secondary path) ── */
 function regDragOver(e)  { e.preventDefault(); document.getElementById('reg-drop-zone').classList.add('drag-over'); }
 function regDragLeave()  { document.getElementById('reg-drop-zone').classList.remove('drag-over'); }
 function regDrop(e) {
@@ -1931,469 +2280,188 @@ function regFileSelected(input) {
   if (f) parseRegistryFile(f);
 }
 
-/* ── Parse spec sheet (7 category sheets) ── */
-function parseSpecSheet(ws, sheetName) {
-  var rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null });
-  // Find header row: col index 2 === "Field Label"
-  var headerIdx = -1;
-  for (var i = 0; i < rows.length; i++) {
-    if (rows[i] && String(rows[i][2] || '').trim() === 'Field Label') { headerIdx = i; break; }
-  }
-  if (headerIdx < 0) return null;
+var parsedRegistry = null;
 
-  var sections = [], curSec = null;
-  for (var r = headerIdx + 1; r < rows.length; r++) {
-    var row   = rows[r]; if (!row) continue;
-    var sub   = String(row[0] || '').trim();
-    var label = row[2] != null ? String(row[2]).trim() : '';
-    var key   = row[3] != null ? String(row[3]).trim() : '';
-    var type  = row[4] != null ? String(row[4]).trim().toLowerCase() : '';
-    var desc  = row[5] != null ? String(row[5]).trim() : '';
-    if (sub.startsWith('Total fields')) break;
-    if (!sub && !label && !key) continue;
-    if (!label || !key) {
-      if (sub) { curSec = { title: sub, icon: '📋', fields: [] }; sections.push(curSec); }
-      continue;
-    }
-    if (key.indexOf('{id}') >= 0) continue;
-    if (!curSec) { curSec = { title: 'General', icon: '📋', fields: [] }; sections.push(curSec); }
-    var opts = [];
-    if ((type === 'select') && desc && desc.indexOf('/') >= 0)
-      opts = [''].concat(desc.split('/').map(function(o){ return o.trim(); }).filter(Boolean));
-    curSec.fields.push({ id: key, lbl: label, field: key, type: type||'text', opts: opts, desc: desc });
-  }
-  return sections.length ? { key: SHEET_TO_CAT[sheetName], label: sheetName, sections: sections } : null;
-}
-
-/* ── Parse a builder sheet (Design Arrays / Crews / Contracts / Components / Equipment) ──
-   Format: row 1 = title, row 2 = hint (sheet_type=xxx), row 3 = headers,
-           section row = merged/all cols, field rows = col0=type_key, col2=label, col3=field, col4=type, col5=opts */
-function parseBuilderSheet(ws) {
-  var rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null });
-  if (rows.length < 4) return null;
-
-  // Find header row by looking for "Field Label" in any column
-  var hdrIdx = -1;
-  for (var i = 0; i < Math.min(5, rows.length); i++) {
-    if (rows[i] && rows[i].some(function(c){ return String(c||'').trim() === 'Field Label'; }))
-      { hdrIdx = i; break; }
-  }
-  if (hdrIdx < 0) hdrIdx = 2; // fallback to row 3
-
-  var groups = {}, groupOrder = [];
-  var curGroup = null;
-
-  for (var r = hdrIdx + 1; r < rows.length; r++) {
-    var row = rows[r]; if (!row) continue;
-    var c0  = String(row[0] || '').trim();
-    var c2  = row[2] != null ? String(row[2]).trim() : '';
-    var c3  = row[3] != null ? String(row[3]).trim() : '';
-    var c4  = row[4] != null ? String(row[4]).trim().toLowerCase() : '';
-    var c5  = row[5] != null ? String(row[5]).trim() : '';
-
-    // Section header: only col 0/1 have content and c2/c3 are blank, OR row is fully merged
-    if (c2 === '' && c3 === '' && c0 !== '') {
-      // Extract group key from [key=xxx] in title
-      var keyMatch = c0.match(/\[(?:type|key)=([^\]]+)\]/);
-      var groupKey = keyMatch ? keyMatch[1].trim() : c0.replace(/[^\w]/g,'_').toLowerCase();
-      curGroup = groupKey;
-      if (!groups[curGroup]) { groups[curGroup] = []; groupOrder.push(curGroup); }
-      continue;
-    }
-    if (!c2 && !c3) continue;
-    if (!curGroup) { curGroup = '__default'; if (!groups[curGroup]) { groups[curGroup] = []; groupOrder.push(curGroup); } }
-
-    var opts2 = [];
-    if (c4 === 'select' && c5 && c5.indexOf('/') >= 0)
-      opts2 = [''].concat(c5.split('/').map(function(o){ return o.trim(); }).filter(Boolean));
-
-    groups[curGroup].push({ id: c3, lbl: c2, field: c3, type: c4||'text', opts: opts2, desc: c5 });
-  }
-
-  if (!groupOrder.length) return null;
-  return groupOrder.map(function(k){ return { key: k, fields: groups[k] }; });
-}
-
-/* ── Parse Suppliers sheet (flat — same fields for all types) ── */
-function parseSuppliersSheet(ws) {
-  var rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null });
-  var hdrIdx = -1;
-  for (var i = 0; i < Math.min(6, rows.length); i++) {
-    if (rows[i] && rows[i].some(function(c){ return String(c||'').trim() === 'Field Label'; }))
-      { hdrIdx = i; break; }
-  }
-  if (hdrIdx < 0) return null;
-  var fields = [];
-  for (var r = hdrIdx + 1; r < rows.length; r++) {
-    var row = rows[r]; if (!row) continue;
-    var lbl = row[2] != null ? String(row[2]).trim() : '';
-    var key = row[3] != null ? String(row[3]).trim() : '';
-    var typ = row[4] != null ? String(row[4]).trim().toLowerCase() : '';
-    var dsc = row[5] != null ? String(row[5]).trim() : '';
-    if (!lbl || !key || key === 'field key') continue;
-    var opts = [];
-    if (typ === 'select' && dsc && dsc.indexOf('/') >= 0)
-      opts = [''].concat(dsc.split('/').map(function(o){ return o.trim(); }).filter(Boolean));
-    fields.push({ id: key, lbl: lbl, field: key, type: typ||'text', opts: opts, desc: dsc });
-  }
-  return fields.length ? fields : null;
-}
-
-/* ── Parse Intake Questions sheet ── */
-function parseIntakeSheet(ws) {
-  var rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null });
-  var hdrIdx = -1;
-  for (var i = 0; i < Math.min(5, rows.length); i++) {
-    if (rows[i] && String(rows[i][1]||'').trim() === 'Label')
-      { hdrIdx = i; break; }
-  }
-  if (hdrIdx < 0) return null;
-  var qs = [];
-  for (var r = hdrIdx + 1; r < rows.length; r++) {
-    var row = rows[r]; if (!row) continue;
-    var id  = String(row[0]||'').trim();
-    var lbl = String(row[1]||'').trim();
-    var typ = String(row[2]||'').trim().toLowerCase() || 'text';
-    var req = String(row[3]||'').trim().toLowerCase() === 'true';
-    var ord = parseInt(row[4]) || (r - hdrIdx);
-    var opt = String(row[5]||'').trim();
-    if (!id || !lbl) continue;
-    qs.push({ id: id, label: lbl, type: typ, required: req, order: ord, opts: opt });
-  }
-  return qs.length ? qs : null;
-}
-
-/* ── Master parse function ── */
 function parseRegistryFile(file) {
-  var warn = document.getElementById('reg-warn');
-  warn.className = 'reg-warn'; warn.textContent = '';
-  document.getElementById('reg-preview').style.display = 'none';
+  document.getElementById('reg-warn').className       = 'reg-warn';
+  document.getElementById('reg-warn').textContent     = '';
+  document.getElementById('reg-preview').style.display  = 'none';
   document.getElementById('reg-parse-status').style.display = 'none';
-  document.getElementById('reg-publish-btn').style.display = 'none';
+  document.getElementById('reg-publish-btn').style.display  = 'none';
   parsedRegistry = null;
 
   var reader = new FileReader();
   reader.onload = function(e) {
     try {
-      var data = new Uint8Array(e.target.result);
-      var xlwb = XLSX.read(data, { type: 'array' });
+      var xlwb  = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
+      var payload = { categories:{}, builders:{}, total_fields:0, total_sheets:0 };
+      var preview = [];
 
-      var payload = {
-        categories:            [],   // 7 spec sheets
-        design_array_sections: [],   // per-array sections
-        crews:                 [],   // crew types
-        procurement_contracts: [],   // contract sections
-        components:            [],   // component types
-        suppliers:             null, // flat field list
-        equipment:             [],   // equipment types
-        intake:                null, // intake questions
-        total_sheets: 0,
-        total_fields: 0,
-      };
+      xlwb.SheetNames.forEach(function(sn) {
+        if (sn === 'INDEX') return;
+        var ws   = xlwb.Sheets[sn];
+        var rows = XLSX.utils.sheet_to_json(ws, { header:1, defval:'' });
 
-      var previewRows = [];
-      var warnings = [];
+        // Find header row (contains "Field Label" in any cell)
+        var hdr = -1;
+        for (var i=0; i<Math.min(6,rows.length); i++) {
+          if (rows[i].some(function(c){ return String(c).trim()==='Field Label'; })) { hdr=i; break; }
+        }
+        if (hdr<0) return;
 
-      xlwb.SheetNames.forEach(function(sName) {
-        if (sName === 'INDEX') return;
-        var ws = xlwb.Sheets[sName];
-
-        // ── 7 Category spec sheets ──
-        if (SHEET_TO_CAT[sName]) {
-          var cat = parseSpecSheet(ws, sName);
-          if (cat) {
-            payload.categories.push(cat);
-            var fc = cat.sections.reduce(function(n,s){return n+s.fields.length;},0);
-            payload.total_fields += fc;
-            payload.total_sheets++;
-            previewRows.push({ sheet: sName, icon:'📋', count: fc, type:'Category spec' });
+        var fields=[], groups=[], curGroup=null, curSec='';
+        for (var r=hdr+1; r<rows.length; r++) {
+          var row = rows[r];
+          var c0  = String(row[0]||'').trim();
+          var c2  = String(row[2]||'').trim();
+          var c3  = String(row[3]||'').trim();
+          var c4  = String(row[4]||'').trim().toLowerCase();
+          var c5  = String(row[5]||'').trim();
+          if (!c2 && !c3) {
+            // Section/group header — any non-empty cell in col 0 or merged col
+            var hdrText = c0 || String(row[1]||'').trim();
+            if (hdrText) {
+              var keyMatch = hdrText.match(/\[(?:type|key)=([^\]]+)\]/);
+              curSec = keyMatch ? keyMatch[1].trim() : hdrText.replace(/\s*\[.*?\]\s*/g,'').trim();
+              curGroup = { key: curSec, fields: [] };
+              groups.push(curGroup);
+            }
+            continue;
           }
-          return;
+          if (!c3 || c3==='Field Key'||c3==='tally_fields Key'||c3==='field key') continue;
+          var opts=[];
+          if (c4==='select'&&c5) opts=[''].concat(c5.split('/').map(function(o){return o.trim();}).filter(Boolean));
+          var field = { id:c3, field:c3, label:c2, lbl:c2, type:c4||'text', opts:opts, section:curSec };
+          fields.push(field);
+          if (curGroup) curGroup.fields.push(field);
+          else { if (!curGroup){curGroup={key:'General',fields:[]};groups.push(curGroup);} curGroup.fields.push(field); }
         }
 
-        var lname = sName.toLowerCase().replace(/[^a-z ]/g,'').trim();
+        payload.total_fields += fields.length;
+        payload.total_sheets++;
 
-        // ── Design Arrays ──
-        if (lname === 'design arrays') {
-          var groups = parseBuilderSheet(ws);
-          if (groups) {
-            payload.design_array_sections = groups;
-            var fc2 = groups.reduce(function(n,g){return n+g.fields.length;},0);
-            payload.total_fields += fc2; payload.total_sheets++;
-            previewRows.push({ sheet: sName, icon:'☀️', count: fc2, type:'Design array sections (' + groups.length + ' sections)' });
-          }
+        var catKey = SHEET_TO_CAT[sn];
+        if (catKey) {
+          payload.categories[catKey] = fields;
+          preview.push({ sheet:sn, count:fields.length, type:'Category spec' });
           return;
         }
-
-        // ── Construction Crews ──
-        if (lname === 'construction crews') {
-          var cg = parseBuilderSheet(ws);
-          if (cg) {
-            payload.crews = cg;
-            var fc3 = cg.reduce(function(n,g){return n+g.fields.length;},0);
-            payload.total_fields += fc3; payload.total_sheets++;
-            previewRows.push({ sheet: sName, icon:'👷', count: fc3, type:'Crew types (' + cg.length + ' types)' });
-          }
-          return;
-        }
-
-        // ── Procurement Contracts ──
-        if (lname === 'procurement contracts') {
-          var pcg = parseBuilderSheet(ws);
-          if (pcg) {
-            payload.procurement_contracts = pcg;
-            var fc4 = pcg.reduce(function(n,g){return n+g.fields.length;},0);
-            payload.total_fields += fc4; payload.total_sheets++;
-            previewRows.push({ sheet: sName, icon:'📑', count: fc4, type:'Contract sections (' + pcg.length + ' sections)' });
-          }
-          return;
-        }
-
-        // ── Components ──
-        if (lname === 'components') {
-          var compg = parseBuilderSheet(ws);
-          if (compg) {
-            payload.components = compg;
-            var fc5 = compg.reduce(function(n,g){return n+g.fields.length;},0);
-            payload.total_fields += fc5; payload.total_sheets++;
-            previewRows.push({ sheet: sName, icon:'⚙️', count: fc5, type:'Component types (' + compg.length + ' types)' });
-          }
-          return;
-        }
-
-        // ── Suppliers ──
-        if (lname === 'suppliers') {
-          var supf = parseSuppliersSheet(ws);
-          if (supf) {
-            payload.suppliers = supf;
-            payload.total_fields += supf.length; payload.total_sheets++;
-            previewRows.push({ sheet: sName, icon:'🏢', count: supf.length, type:'Supplier fields (shared by all types)' });
-          }
-          return;
-        }
-
-        // ── Equipment ──
-        if (lname === 'equipment') {
-          var eqg = parseBuilderSheet(ws);
-          if (eqg) {
-            payload.equipment = eqg;
-            var fc6 = eqg.reduce(function(n,g){return n+g.fields.length;},0);
-            payload.total_fields += fc6; payload.total_sheets++;
-            previewRows.push({ sheet: sName, icon:'🚜', count: fc6, type:'Equipment types (' + eqg.length + ' types)' });
-          }
-          return;
-        }
-
-        // ── Intake Questions ──
-        if (lname === 'intake questions') {
-          var iqd = parseIntakeSheet(ws);
-          if (iqd) {
-            payload.intake = iqd;
-            payload.total_fields += iqd.length; payload.total_sheets++;
-            previewRows.push({ sheet: sName, icon:'📝', count: iqd.length, type:'Intake questions' });
-          }
-          return;
+        var snl = sn.toLowerCase().replace(/[^a-z ]/g,'').trim();
+        var bMap = { 'design arrays':'reg_design_arrays','construction crews':'reg_crews',
+                     'procurement contracts':'reg_procurement_contracts','components':'reg_components',
+                     'suppliers':'reg_suppliers','equipment':'reg_equipment' };
+        var bKey = bMap[snl];
+        if (bKey) {
+          payload.builders[bKey] = groups.length ? groups : fields;
+          preview.push({ sheet:sn, count:fields.length, type:bKey });
         }
       });
 
-      if (!previewRows.length) {
-        showRegWarn('No recognisable sheets found. Make sure sheet names match exactly (see INDEX tab).');
-        return;
-      }
-
-      // Show warnings
-      if (warnings.length) {
-        var wEl = document.getElementById('reg-warn');
-        wEl.textContent = warnings.join(' · ');
-        wEl.className = 'reg-warn show';
+      if (!preview.length) {
+        document.getElementById('reg-warn').textContent='No recognised sheets found. Check sheet names match exactly.';
+        document.getElementById('reg-warn').className='reg-warn show'; return;
       }
 
       parsedRegistry = payload;
 
-      // Status bar
-      var status = document.getElementById('reg-parse-status');
-      var msg    = document.getElementById('reg-parse-msg');
-      var badge  = document.getElementById('reg-parse-badge');
-      status.style.display = '';
-      status.className = 'fr-status-bar ok';
-      msg.textContent = payload.total_sheets + ' sheets parsed · ' + payload.total_fields + ' fields total';
-      badge.textContent = payload.total_sheets + ' sheets'; badge.style.display = 'inline-block';
-
-      // Preview
-      var html = previewRows.map(function(r) {
-        return '<div class="reg-cat-row">' +
-          '<span class="reg-cat-dot" style="background:#2471a3;width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:6px;flex-shrink:0;"></span>' +
-          '<span class="reg-cat-name" style="font-size:11px;color:#ccc;">' + r.icon + ' ' + escAdm(r.sheet) + '</span>' +
-          '<span class="reg-cat-count" style="font-size:10px;color:#FFFF00;margin-left:auto;">' + r.count + ' fields</span>' +
-          '</div>' +
-          '<div style="padding:0 0 4px 18px;font-size:10px;color:#444;">' + r.type + '</div>';
+      var st = document.getElementById('reg-parse-status');
+      st.style.display=''; st.className='fr-status-bar ok';
+      document.getElementById('reg-parse-msg').textContent = payload.total_sheets+' sheets · '+payload.total_fields+' fields';
+      document.getElementById('reg-preview-body').innerHTML = preview.map(function(p){
+        return '<div style="font-size:11px;color:#aaa;padding:3px 0;">✓ <strong style="color:#FFFF00;">'+escAdm(p.sheet)+'</strong> — '+p.count+' fields</div>';
       }).join('');
-      document.getElementById('reg-preview-body').innerHTML = html;
-      document.getElementById('reg-preview').style.display = 'block';
-      document.getElementById('reg-publish-btn').style.display = 'inline-block';
+      document.getElementById('reg-preview').style.display='block';
+      document.getElementById('reg-publish-btn').style.display='inline-block';
 
     } catch(err) {
-      showRegWarn('Parse error: ' + err.message);
-      var st = document.getElementById('reg-parse-status');
-      st.style.display = '';
-      st.className = 'fr-status-bar error';
-      document.getElementById('reg-parse-msg').textContent = 'Parse error: ' + err.message;
+      document.getElementById('reg-warn').textContent='Parse error: '+err.message;
+      document.getElementById('reg-warn').className='reg-warn show';
     }
   };
   reader.readAsArrayBuffer(file);
 }
 
-function showRegWarn(msg) {
-  var el = document.getElementById('reg-warn');
-  el.textContent = msg; el.className = 'reg-warn show';
-}
-
-/* ── Publish ── saves entire payload to admin_config ── */
 function publishRegistry() {
   if (!parsedRegistry) return;
   var btn = document.getElementById('reg-publish-btn');
-  btn.disabled = true; btn.textContent = 'Publishing…';
+  btn.disabled=true; btn.textContent='Publishing…';
 
-  var now     = new Date();
-  var version = 'v' + now.getFullYear().toString().slice(2) + '.' +
-    String(now.getMonth()+1).padStart(2,'0') + '.' +
-    String(now.getDate()).padStart(2,'0') + '.' +
-    String(now.getHours()).padStart(2,'0') + String(now.getMinutes()).padStart(2,'0');
+  var version = regMakeVersion();
+  var now     = new Date().toISOString();
+  var pairs   = [];
 
-  // Build the flat catKey→fields format applyFieldRegistry() reads
-  var flatSpec = {};
-  (parsedRegistry.categories||[]).forEach(function(cat) {
-    flatSpec[cat.key] = [];
-    (cat.sections||[]).forEach(function(sec) {
-      (sec.fields||[]).forEach(function(f) {
-        flatSpec[cat.key].push({
-          id: f.id||f.field, label: f.lbl||f.label||'',
-          section: sec.title, section_icon: sec.icon||'📋',
-          type: f.type||'text', opts: f.opts||[], required: false, col: f.col||1
-        });
-      });
-    });
+  // Category flat registry
+  var reg = {};
+  try { reg = JSON.parse(REG_LIVE['field_registry']||'{}'); } catch(e){}
+  Object.keys(parsedRegistry.categories||{}).forEach(function(k){ reg[k]=parsedRegistry.categories[k]; });
+  pairs.push({ key:'field_registry', value:JSON.stringify(reg) });
+
+  // Builder data
+  Object.keys(parsedRegistry.builders||{}).forEach(function(k) {
+    pairs.push({ key:k, value:JSON.stringify(parsedRegistry.builders[k]) });
+    REG_LIVE[k] = JSON.stringify(parsedRegistry.builders[k]);
   });
+  REG_LIVE['field_registry'] = JSON.stringify(reg);
 
-  var rows = [
-    { key: 'field_registry',         value: JSON.stringify(flatSpec) },
-    { key: 'field_registry_version', value: version },
-    { key: 'field_registry_date',    value: now.toISOString() },
-    { key: 'field_registry_meta',    value: JSON.stringify({ version: version, total_sheets: parsedRegistry.total_sheets, total_fields: parsedRegistry.total_fields, published_at: now.toISOString() }) },
-    // Builder payloads
-    { key: 'reg_design_arrays',      value: JSON.stringify(parsedRegistry.design_array_sections||[]) },
-    { key: 'reg_crews',              value: JSON.stringify(parsedRegistry.crews||[]) },
-    { key: 'reg_procurement_contracts', value: JSON.stringify(parsedRegistry.procurement_contracts||[]) },
-    { key: 'reg_components',         value: JSON.stringify(parsedRegistry.components||[]) },
-    { key: 'reg_suppliers',          value: JSON.stringify(parsedRegistry.suppliers||[]) },
-    { key: 'reg_equipment',          value: JSON.stringify(parsedRegistry.equipment||[]) },
-  ];
+  pairs.push({ key:'field_registry_version', value:version });
+  pairs.push({ key:'field_registry_date',    value:now });
+  pairs.push({ key:'field_registry_meta',    value:JSON.stringify({ version:version, total_sheets:parsedRegistry.total_sheets, total_fields:parsedRegistry.total_fields, published_at:now }) });
 
-  // Intake is saved separately via intake_questions key
-  if (parsedRegistry.intake) {
-    rows.push({ key: 'intake_questions', value: JSON.stringify(parsedRegistry.intake) });
-  }
-
-  rows.forEach(function(r) { r.updated_at = now.toISOString(); });
-
-  sb.auth.getSession().then(function(sRes) {
-    var token  = sRes.data && sRes.data.session && sRes.data.session.access_token;
-    var client = token
-      ? supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth:{ persistSession:false }, global:{ headers:{ Authorization:'Bearer '+token } } })
-      : sb;
-    var chain = Promise.resolve();
-    rows.forEach(function(row) {
-      chain = chain.then(function() {
-        return client.from('admin_config').upsert({ key: row.key, value: row.value, updated_at: row.updated_at }, { onConflict: 'key' });
-      });
-    });
-    chain.then(function() {
-      var msg = document.getElementById('reg-save-msg');
-      if (msg) { msg.style.opacity = 1; setTimeout(function(){ msg.style.opacity = 0; }, 2500); }
-      loadRegistryStatus();
-      btn.disabled = false; btn.textContent = '⬆ Publish Registry';
-    }).catch(function(e) {
-      alert('Publish failed: ' + e.message);
-      btn.disabled = false; btn.textContent = '⬆ Publish Registry';
-    });
+  regUpsertAll(pairs, function(err) {
+    btn.disabled=false; btn.textContent='⬆ Publish Registry';
+    if (err) { alert('Publish failed: '+err); return; }
+    loadRegistryStatus();
+    var msg=document.getElementById('reg-save-msg');
+    if(msg){msg.textContent='Published ✓';msg.style.color='#2ecc71';msg.style.opacity=1;setTimeout(function(){msg.style.opacity=0;},2500);}
   });
 }
 
-/* ── Download current registry as Excel (re-fetches from Supabase, falls back to hardcoded) ── */
-function regDownloadTemplate() {
-  var a = document.createElement('a');
-  a.href = 'https://supabase.co'; // placeholder — we just trigger download of the static template
-  // Since we can't run Python in-browser, we tell the user to use the prebuilt template
-  alert('The pre-built template is the SunHash_Field_Registry.xlsx file. To get the latest version reflecting any published edits, use the Query Supabase button to inspect the saved JSON, then re-export from the admin panel when the Excel-from-DB feature is added.');
-}
-
-/* ── Query Supabase — show current registry JSON ── */
+/* ── Query Supabase raw ── */
 function regQuerySupabase() {
   var out  = document.getElementById('reg-supabase-out');
   var json = document.getElementById('reg-supabase-json');
-  out.style.display = 'block';
-  json.textContent = 'Loading…';
+  out.style.display='block';
+  json.textContent='Loading…';
   sb.from('admin_config').select('key,value,updated_at')
-    .in('key',['field_registry','field_registry_version','field_registry_date','field_registry_meta',
-                'reg_design_arrays','reg_crews','reg_procurement_contracts','reg_components','reg_suppliers','reg_equipment','intake_questions'])
+    .in('key', ALL_REG_KEYS.concat(['field_registry_version','field_registry_date']))
     .then(function(res) {
-      if (res.error) { json.textContent = 'Error: ' + res.error.message; return; }
-      var map = {};
-      (res.data||[]).forEach(function(r) {
-        try { map[r.key] = { updated_at: r.updated_at, data: JSON.parse(r.value) }; }
-        catch(e) { map[r.key] = { updated_at: r.updated_at, raw: r.value }; }
+      if (res.error) { json.textContent='Error: '+res.error.message; return; }
+      var out2={};
+      (res.data||[]).forEach(function(r){
+        try { out2[r.key]={ updated:r.updated_at, data:JSON.parse(r.value) }; }
+        catch(e){ out2[r.key]={ updated:r.updated_at, raw:r.value }; }
       });
-      json.textContent = JSON.stringify(map, null, 2);
+      json.textContent=JSON.stringify(out2,null,2);
     });
 }
 
-/* ── Load and display current registry status ── */
+/* ── Status bar ── */
 function loadRegistryStatus() {
   sb.from('admin_config').select('key,value')
-    .in('key', ['field_registry_version','field_registry_date','field_registry_meta'])
+    .in('key',['field_registry_version','field_registry_date','field_registry_meta'])
     .then(function(res) {
-      if (res.error || !res.data) return;
-      var map = {};
-      res.data.forEach(function(r) { map[r.key] = r.value; });
-
-      var ver  = map['field_registry_version'] || '—';
+      if (res.error||!res.data) return;
+      var map={};
+      res.data.forEach(function(r){ map[r.key]=r.value; });
+      var ver  = map['field_registry_version']||'—';
       var date = map['field_registry_date'] ? new Date(map['field_registry_date']).toLocaleString() : '—';
-      var meta = null;
-      try { meta = map['field_registry_meta'] ? JSON.parse(map['field_registry_meta']) : null; } catch(e) {}
-
-      var sheets = meta ? (meta.total_sheets || '—') : '—';
-      var fields = meta ? (meta.total_fields || '—') : '—';
-
-      var statusEl  = document.getElementById('reg-cur-status');
-      var statusTxt = document.getElementById('reg-cur-status-txt');
-      var badge     = document.getElementById('reg-cur-badge');
-      if (statusEl) {
-        if (ver !== '—') {
-          statusEl.className = 'fr-status-bar ok';
-          statusTxt.textContent = 'Registry ' + ver + ' active · published ' + date;
-          badge.textContent = ver; badge.style.display = 'inline-block';
-        } else {
-          statusEl.className = 'fr-status-bar none';
-          statusTxt.textContent = 'No registry published yet — hardcoded defaults are active.';
-          badge.style.display = 'none';
-        }
-      }
-      var vEl = document.getElementById('reg-cur-version');
-      var dEl = document.getElementById('reg-cur-date');
-      var cEl = document.getElementById('reg-cur-cats');
-      var fEl = document.getElementById('reg-cur-fields');
-      if (vEl) vEl.innerHTML = ver !== '—' ? '<span class="reg-version-badge">' + ver + '</span>' : '—';
-      if (dEl) dEl.textContent = date;
-      if (cEl) cEl.textContent = sheets;
-      if (fEl) fEl.textContent = fields;
+      var vEl=document.getElementById('reg-cur-version');
+      var dEl=document.getElementById('reg-cur-date');
+      if(vEl) vEl.innerHTML = ver!=='—' ? '<span class="reg-version-badge">'+ver+'</span>' : '—';
+      if(dEl) dEl.textContent = date;
     });
 }
 
-/* ── Hook into showPanel ── */
+/* ── Hook: load data when panel opens, open first tab ── */
 var _origShowPanelReg = showPanel;
 showPanel = function(id) {
   _origShowPanelReg.call(this, id);
-  if (id === 'registry') loadRegistryStatus();
+  if (id === 'registry') {
+    loadRegistryStatus();
+    loadRegistryFromDB(function() {
+      regShowTab('cat', 'Design & Engineering');
+    });
+  }
 };
 
 
