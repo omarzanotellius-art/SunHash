@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>SunHash - Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:#eef0f4;color:#1a1f2e;min-height:100vh;}
+body.hidden{visibility:hidden;}
+a{text-decoration:none;}
+.topbar{position:fixed;top:0;left:0;right:0;z-index:100;height:56px;background:#111;border-bottom:3px solid #FFFF00;display:flex;align-items:center;justify-content:space-between;padding:0 32px;}
+.logo{font-size:22px;font-weight:900;letter-spacing:0.3px;text-transform:uppercase;color:#fff;}
+.logo span{color:#FFFF00;}
+.tb-right{display:flex;align-items:center;gap:12px;}
+.user-chip{display:flex;align-items:center;gap:8px;background:#1E1E1E;padding:4px 12px 4px 4px;cursor:pointer;}
+.avatar{width:28px;height:28px;background:#FFFF00;color:#111;font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.user-name{font-size:13px;font-weight:600;color:#fff;}
+.btn-out{background:none;border:1px solid #444;color:#777;font-family:'Inter',sans-serif;font-size:12px;font-weight:700;padding:7px 14px;cursor:pointer;text-transform:uppercase;}
+.btn-out:hover{border-color:#fff;color:#fff;}
+.page{padding-top:56px;}
+.hero{background:#111;padding:40px 32px;display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;}
+.hero-tag{font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#FFFF00;margin-bottom:8px;}
+.hero h1{font-size:48px;font-weight:900;letter-spacing:-1.5px;text-transform:uppercase;color:#fff;line-height:0.95;}
+.hero h1 em{color:#FFFF00;font-style:normal;}
+.btn-new{padding:14px 24px;background:#FFFF00;border:2px solid #3A3A3A;color:#3A3A3A;font-family:'Inter',sans-serif;font-size:15px;font-weight:900;letter-spacing:0.3px;text-transform:uppercase;cursor:pointer;white-space:nowrap;}
+.btn-new:hover{background:#fff;}
+.btn-refresh{width:36px;height:36px;background:none;border:2px solid #333;color:#888;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.btn-refresh:hover{border-color:#FFFF00;color:#FFFF00;}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:0;}
+.stat{padding:20px 24px;border-right:1px solid rgba(0,0,0,0.08);}
+.stat:last-child{border-right:none;}
+.stat:nth-child(1){background:#111;}
+.stat:nth-child(2){background:#e2e5ec;}
+.stat:nth-child(3){background:#FFFF00;}
+.stat:nth-child(4){background:#e2e5ec;}
+.stat-lbl{font-size:10px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:6px;}
+.stat:nth-child(1) .stat-lbl{color:#FFFF00;}
+.stat:nth-child(2) .stat-lbl,.stat:nth-child(4) .stat-lbl{color:#888;}
+.stat:nth-child(3) .stat-lbl{color:#555;}
+.stat-val{font-size:36px;font-weight:900;letter-spacing:-0.5px;line-height:1;}
+.stat:nth-child(1) .stat-val{color:#fff;}
+.body{padding:24px 32px 80px;}
+.filter-bar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-bottom:20px;flex-wrap:wrap;}
+.filters{display:flex;border:2px solid #1a1f2e;border-radius:8px;overflow:hidden;}
+.fbtn{padding:8px 16px;background:none;border:none;border-right:1px solid rgba(0,0,0,0.15);font-family:'Inter',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.1px;text-transform:uppercase;color:#6b7585;cursor:pointer;}
+.fbtn:last-child{border-right:none;}
+.fbtn.active{background:#1a1f2e;color:#FFFF00;}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;padding:4px 0;}
+.card{background:#dde1ea;border-radius:16px;display:flex;flex-direction:column;box-shadow:0 2px 12px rgba(0,0,0,0.07);overflow:hidden;transition:transform .15s,box-shadow .15s;}
+.card:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(0,0,0,0.12);}
+.card-hdr{padding:20px 22px 16px;}
+.card-stage{font-size:10px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#5a6474;margin-bottom:6px;}
+.card-name{font-size:21px;font-weight:800;letter-spacing:-0.5px;color:#1a1f2e;margin-bottom:4px;line-height:1.15;}
+.card-loc{font-size:12px;color:#6b7585;}
+.card-scores{padding:12px 22px;background:rgba(255,255,255,0.4);display:flex;gap:12px;align-items:center;}
+.score-circle{width:52px;height:52px;border-radius:50%;background:#1a1f2e;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,0.15);}
+.score-num{font-size:18px;font-weight:900;color:#fff;}
+.score-circle.hi .score-num{color:#FFFF00;}
+.score-circle.lo .score-num{color:#ff6b6b;}
+.bars{flex:1;}
+.bar-row{display:flex;align-items:center;gap:6px;margin-bottom:5px;}
+.bar-row:last-child{margin-bottom:0;}
+.bar-lbl{font-size:9px;font-weight:700;text-transform:uppercase;color:#6b7585;width:48px;flex-shrink:0;}
+.bar-track{flex:1;height:4px;background:rgba(0,0,0,0.1);border-radius:2px;}
+.bar-fill{height:100%;background:#1a1f2e;border-radius:2px;}
+.bar-fill.hi{background:#3a7d44;}
+.bar-fill.lo{background:#c0392b;}
+.bar-num{font-size:9px;color:#6b7585;width:20px;text-align:right;font-weight:600;}
+.card-intake-msg{padding:12px 22px;font-size:12px;color:#6b7585;font-style:italic;background:rgba(255,255,255,0.25);border-radius:8px;margin:0 12px 8px;}
+.card-cats{padding:8px 14px 12px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px;}
+.cat-btn{padding:7px 6px;border:none;background:rgba(255,255,255,0.45);color:#1a1f2e;font-family:'Inter',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;cursor:pointer;letter-spacing:0.2px;border-radius:8px;transition:all .15s;text-align:center;}
+.cat-btn:hover{background:#1a1f2e;color:#FFFF00;}
+.cat-btn.done{background:#1a1f2e;color:#FFFF00;}
+.card-ftr{padding:12px 22px 16px;display:flex;align-items:center;justify-content:space-between;margin-top:auto;background:rgba(255,255,255,0.25);}
+.card-date{font-size:11px;color:#6b7585;font-weight:500;}
+.badge{font-size:10px;font-weight:700;letter-spacing:0.3px;text-transform:uppercase;padding:3px 10px;border-radius:20px;border:none;}
+.badge.draft{color:#6b7585;background:rgba(0,0,0,0.08);}
+.badge.in-progress{color:#fff;background:#e07b20;}
+.badge.complete{color:#fff;background:#2e7d4f;}
+.btn-retake{padding:5px 11px;border:none;background:rgba(255,255,255,0.4);color:#4a5568;font-family:'Inter',sans-serif;font-size:11px;font-weight:600;cursor:pointer;border-radius:20px;transition:all .15s;}
+.btn-retake:hover{background:rgba(255,255,255,0.7);color:#1a1f2e;}
+.btn-delete-card{padding:5px 11px;border:none;background:rgba(192,57,43,0.12);color:#c0392b;font-family:'Inter',sans-serif;font-size:11px;font-weight:600;cursor:pointer;border-radius:20px;transition:all .15s;}
+.btn-delete-card:hover{background:#c0392b;color:#fff;}
+.btn-dup{padding:5px 11px;border:none;background:rgba(36,113,163,0.12);color:#2471a3;font-family:'Inter',sans-serif;font-size:11px;font-weight:600;cursor:pointer;border-radius:20px;transition:all .15s;}
+.btn-dup:hover{background:#2471a3;color:#fff;}
+
+/* 3-dot card menu */
+.card-menu-wrap{position:relative;display:inline-block;}
+.btn-dots{padding:5px 10px;border:none;background:rgba(0,0,0,0.07);color:#4a5568;font-family:'Inter',sans-serif;font-size:16px;font-weight:900;cursor:pointer;border-radius:20px;line-height:1;transition:all .15s;}
+.btn-dots:hover{background:#1a1f2e;color:#FFFF00;}
+.card-menu{display:none;position:absolute;bottom:calc(100% + 6px);right:0;background:#fff;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,0.15);border:1px solid rgba(0,0,0,0.08);min-width:148px;z-index:200;overflow:hidden;}
+.card-menu.open{display:block;}
+.card-menu-item{display:block;width:100%;padding:9px 14px;background:none;border:none;border-bottom:1px solid rgba(0,0,0,0.05);font-family:'Inter',sans-serif;font-size:11px;font-weight:600;color:#1a1f2e;text-align:left;cursor:pointer;transition:background .12s;}
+.card-menu-item:last-child{border-bottom:none;}
+.card-menu-item:hover{background:#f0f2f6;}
+.card-menu-item.danger{color:#c0392b;}
+.card-menu-item.danger:hover{background:#fdf0ef;}
+.btn-overview{padding:7px 16px;border:none;background:#1a1f2e;color:#FFFF00;font-family:'Inter',sans-serif;font-size:12px;font-weight:800;cursor:pointer;text-transform:uppercase;letter-spacing:0.3px;border-radius:22px;transition:all .15s;}
+.btn-overview:hover{background:#FFFF00;color:#1a1f2e;}
+
+.geo-check{display:inline-block;margin-left:4px;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;}
+.geo-ok{color:#2e7d4f;background:rgba(46,125,79,0.12);}
+.geo-warn{color:#e07b20;background:rgba(224,123,32,0.12);}
+.maps-link{font-size:12px;color:#5a6474;text-decoration:underline;}
+.maps-link:hover{color:#1a1f2e;}
+.empty{border-radius:16px;background:#D8DDE6;padding:60px;text-align:center;display:none;margin-top:4px;}
+.empty.show{display:block;}
+.empty h3{font-size:24px;font-weight:900;text-transform:uppercase;margin-bottom:8px;color:#1a1f2e;}
+.empty p{font-size:14px;color:#6b7585;margin-bottom:20px;}
+
+/* ── INTAKE SLIDE PANEL ── */
+.ip-backdrop{position:fixed;inset:0;z-index:400;background:rgba(0,0,0,0.5);opacity:0;pointer-events:none;transition:opacity .28s;}
+.ip-backdrop.open{opacity:1;pointer-events:all;}
+.ip-panel{position:fixed;top:0;right:0;bottom:0;z-index:401;width:540px;max-width:100vw;background:#fff;box-shadow:-8px 0 48px rgba(0,0,0,0.2);display:flex;flex-direction:column;transform:translateX(105%);transition:transform .32s cubic-bezier(.4,0,.2,1);}
+.ip-panel.open{transform:translateX(0);}
+.ip-hdr{padding:16px 24px;background:#111;border-bottom:3px solid #FFFF00;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.ip-title{font-size:14px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;color:#fff;}
+.ip-subtitle{font-size:10px;color:#666;margin-top:2px;}
+.ip-close{background:none;border:1px solid #444;color:#888;font-family:'Inter',sans-serif;font-size:11px;font-weight:700;padding:6px 14px;cursor:pointer;text-transform:uppercase;transition:all .15s;}
+.ip-close:hover{border-color:#fff;color:#fff;}
+.ip-body{flex:1;overflow-y:auto;padding:22px 24px;}
+.ip-prog-wrap{background:#f0f2f6;border-radius:10px;padding:10px 14px;margin-bottom:22px;}
+.ip-prog-top{display:flex;justify-content:space-between;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;color:#6b7585;margin-bottom:5px;}
+.ip-prog-track{height:5px;background:rgba(0,0,0,0.08);border-radius:3px;overflow:hidden;}
+.ip-prog-fill{height:100%;background:#1a1f2e;border-radius:3px;transition:width .35s ease;}
+.ip-loading{text-align:center;padding:52px 0;color:#6b7585;font-size:13px;}
+.ip-spinner{width:28px;height:28px;border:2.5px solid rgba(0,0,0,0.08);border-top-color:#1a1f2e;border-radius:50%;animation:ipspin .7s linear infinite;margin:0 auto 12px;}
+@keyframes ipspin{to{transform:rotate(360deg);}}
+
+/* Question fields */
+.iq-block{margin-bottom:20px;}
+.iq-lbl{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;color:#1a1f2e;margin-bottom:7px;}
+.iq-req{color:#c0392b;margin-left:2px;}
+.iq-input,.iq-select{width:100%;padding:10px 13px;background:#f7f8fa;border:1.5px solid #dde1ea;border-radius:9px;font-family:'Inter',sans-serif;font-size:13px;color:#1a1f2e;outline:none;transition:border-color .15s,box-shadow .15s;-webkit-appearance:none;}
+.iq-input:focus,.iq-select:focus{border-color:#1a1f2e;box-shadow:0 0 0 3px rgba(26,31,46,0.07);}
+.iq-textarea{width:100%;padding:10px 13px;background:#f7f8fa;border:1.5px solid #dde1ea;border-radius:9px;font-family:'Inter',sans-serif;font-size:13px;color:#1a1f2e;outline:none;resize:vertical;min-height:90px;line-height:1.6;transition:border-color .15s;}
+.iq-textarea:focus{border-color:#1a1f2e;box-shadow:0 0 0 3px rgba(26,31,46,0.07);}
+.iq-tog-row{display:flex;align-items:center;gap:10px;margin-top:4px;}
+.iq-tog{width:40px;height:23px;background:rgba(0,0,0,0.1);border-radius:12px;position:relative;cursor:pointer;flex-shrink:0;transition:background .2s;}
+.iq-tog.on{background:#1a1f2e;}
+.iq-tog-knob{position:absolute;top:3px;left:3px;width:17px;height:17px;background:#fff;border-radius:50%;transition:transform .2s;pointer-events:none;box-shadow:0 1px 4px rgba(0,0,0,0.2);}
+.iq-tog.on .iq-tog-knob{transform:translateX(17px);}
+.iq-tog-label{font-size:12px;font-weight:600;color:#6b7585;}
+.iq-tog.on ~ .iq-tog-label{color:#1a1f2e;}
+.ip-section-sep{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:#c0c8d4;margin:24px 0 16px;padding-bottom:7px;border-bottom:1px solid #e8eaed;}
+.ip-section-sep:first-of-type{margin-top:4px;}
+.ip-ftr{padding:16px 24px;border-top:1px solid #edf0f4;background:#fff;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-shrink:0;}
+.ip-ftr-right{display:flex;align-items:center;gap:12px;}
+.ip-save-msg{font-size:11px;font-weight:600;opacity:0;transition:opacity .3s;}
+.ip-save-msg.ok{color:#2e7d4f;opacity:1;}
+.ip-save-msg.err{color:#c0392b;opacity:1;}
+.btn-ip-save{padding:11px 28px;background:#FFFF00;border:none;color:#1a1f2e;font-family:'Inter',sans-serif;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:0.3px;cursor:pointer;border-radius:25px;transition:all .15s;}
+.btn-ip-save:hover{background:#e6e600;}
+.btn-ip-save:disabled{opacity:.4;cursor:not-allowed;}
+.btn-ip-cancel{padding:11px 20px;background:none;border:1.5px solid #dde1ea;color:#6b7585;font-family:'Inter',sans-serif;font-size:12px;font-weight:700;cursor:pointer;border-radius:25px;transition:all .15s;}
+.btn-ip-cancel:hover{border-color:#1a1f2e;color:#1a1f2e;}
+.iq-input.invalid,.iq-select.invalid,.iq-textarea.invalid{border-color:#c0392b !important;box-shadow:0 0 0 3px rgba(192,57,43,0.1);}
+
+/* Tally overlay for category forms */
+.overlay{display:none;position:fixed;inset:0;z-index:500;background:#111;flex-direction:column;}
+.overlay.open{display:flex;}
+.ov-bar{height:52px;background:#111;border-bottom:2px solid #333;display:flex;align-items:center;justify-content:space-between;padding:0 28px;flex-shrink:0;}
+.ov-lbl{font-size:13px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#FFFF00;}
+.btn-close{background:none;border:1px solid #444;color:#888;font-family:'Inter',sans-serif;font-size:12px;font-weight:700;padding:7px 14px;cursor:pointer;text-transform:uppercase;}
+.btn-close:hover{border-color:#fff;color:#fff;}
+#tally-frame{flex:1;border:none;width:100%;background:#fff;}
+
+@media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr);}.stats{grid-template-columns:repeat(2,1fr);}.ip-panel{width:100%;}}
+@media(max-width:600px){.grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body class="hidden">
+
+<div class="topbar">
+  <div class="logo">Sun<span>Hash</span></div>
+  <div class="tb-right">
+    <span id="registry-version-badge" style="display:none;font-size:9px;font-weight:700;color:#888;background:rgba(255,255,255,0.06);padding:2px 9px;border-radius:20px;border:1px solid rgba(255,255,255,0.08);letter-spacing:0.3px;"></span>
+    <a href="profile.html" class="user-chip">
+      <div class="avatar" id="av">?</div>
+      <div class="user-name" id="uname">Loading...</div>
+    </a>
+    <button class="btn-out" onclick="doSignout()">Sign Out</button>
+  </div>
+</div>
+
+<div class="page">
+  <div class="hero">
+    <div>
+      <div class="hero-tag">Dashboard</div>
+      <h1>Welcome back,<br><em id="firstname">-</em></h1>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;">
+      <button class="btn-refresh" onclick="loadProjects(currentUser.id)" title="Refresh">&#8635;</button>
+      <button class="btn-new" onclick="openIntake(null)">+ New Assessment</button>
+    </div>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="stat-lbl">Assessments</div><div class="stat-val" id="st-total">0</div></div>
+    <div class="stat"><div class="stat-lbl">Reports</div><div class="stat-val" id="st-reports">0</div></div>
+    <div class="stat"><div class="stat-lbl">Avg Score</div><div class="stat-val" id="st-avg">-</div></div>
+    <div class="stat"><div class="stat-lbl">In Progress</div><div class="stat-val" id="st-prog">0</div></div>
+  </div>
+  <div class="body">
+    <div class="filter-bar">
+      <div class="filters">
+        <button class="fbtn active" onclick="doFilter(this,'all')">All</button>
+        <button class="fbtn" onclick="doFilter(this,'complete')">Complete</button>
+        <button class="fbtn" onclick="doFilter(this,'in-progress')">In Progress</button>
+        <button class="fbtn" onclick="doFilter(this,'draft')">Draft</button>
+      </div>
+    </div>
+    <div class="grid" id="grid"></div>
+    <div class="empty" id="empty">
+      <h3>No assessments yet</h3>
+      <p>Start your first project risk assessment.</p>
+      <button class="btn-overview" style="padding:13px 28px;font-size:13px;border-radius:30px;" onclick="openIntake(null)">+ Start Assessment</button>
+    </div>
+  </div>
+</div>
+
+<!-- INTAKE PANEL -->
+<div class="ip-backdrop" id="ip-backdrop" onclick="closeIntake()"></div>
+<div class="ip-panel" id="ip-panel">
+  <div class="ip-hdr">
+    <div>
+      <div class="ip-title" id="ip-title">New Assessment</div>
+      <div class="ip-subtitle">Complete the project intake below</div>
+    </div>
+    <button class="ip-close" onclick="closeIntake()">&#x2715; Close</button>
+  </div>
+  <div class="ip-body">
+    <div class="ip-prog-wrap">
+      <div class="ip-prog-top"><span>Progress</span><span id="ip-prog-txt">0%</span></div>
+      <div class="ip-prog-track"><div class="ip-prog-fill" id="ip-prog-fill" style="width:0%"></div></div>
+    </div>
+    <div id="ip-fields">
+      <div class="ip-loading"><div class="ip-spinner"></div>Loading questions&hellip;</div>
+    </div>
+  </div>
+  <div class="ip-ftr">
+    <button class="btn-ip-cancel" onclick="closeIntake()">Cancel</button>
+    <div class="ip-ftr-right">
+      <span class="ip-save-msg" id="ip-msg"></span>
+      <button class="btn-ip-save" id="ip-save-btn" onclick="saveIntake()">Save Project</button>
+    </div>
+  </div>
+</div>
+
+<!-- TALLY OVERLAY (category forms) -->
+<div class="overlay" id="overlay">
+  <div class="ov-bar">
+    <div class="ov-lbl" id="ov-lbl">Assessment</div>
+    <button class="btn-close" onclick="closeForm()">&#x2715; Close</button>
+  </div>
+  <iframe id="tally-frame" src="" title="Assessment Form"></iframe>
+</div>
+<script>
+var SUPABASE_URL = "https://pyetvugwochlqdxjchwp.supabase.co";
+var SUPABASE_KEY = "sb_publishable_wcO7yhermAiLYrltUILrlw_thJ-I-de";
+var CAT_FORM_DESIGN    = "1ArXEg";
+var CAT_FORM_CONSTRUCT = "0QEdP9";
+var CAT_FORM_CONTRACT  = "D4VBel";
+var CAT_FORM_INTERCON  = "Gxr6Le";
+var CAT_FORM_FINANCIAL = "rjl5Vo";
+var CAT_FORM_PERMIT    = "xXdr2d";
+var sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+var projects       = [];
+var currentFilter  = "all";
+var currentUser    = null;
+var intakeQs       = [];      // questions loaded from admin_config
+var intakeProjId   = null;    // null = new, string = edit
+var intakeVals     = {};      // current answers in the panel
+
+/* ── DEFAULT QUESTIONS (fallback if admin hasn't configured any) ── */
+var DEFAULT_QUESTIONS = [
+  { id:"q_name",     label:"Project Name",                        type:"text",     required:true,  order:1, opts:"" },
+  { id:"q_cap",      label:"Capacity (MWp)",                      type:"number",   required:true,  order:2, opts:"" },
+  { id:"q_state",    label:"State / Province",                    type:"select",   required:true,  order:3,
+    opts:"Alabama,Alaska,Arizona,Arkansas,California,Colorado,Connecticut,Delaware,Florida,Georgia,Hawaii,Idaho,Illinois,Indiana,Iowa,Kansas,Kentucky,Louisiana,Maine,Maryland,Massachusetts,Michigan,Minnesota,Mississippi,Missouri,Montana,Nebraska,Nevada,New Hampshire,New Jersey,New Mexico,New York,North Carolina,North Dakota,Ohio,Oklahoma,Oregon,Pennsylvania,Rhode Island,South Carolina,South Dakota,Tennessee,Texas,Utah,Vermont,Virginia,Washington,West Virginia,Wisconsin,Wyoming" },
+  { id:"q_stage",    label:"Project Stage",                       type:"select",   required:true,  order:4, opts:"Development,Pre-Construction,Construction,Operational" },
+  { id:"q_location", label:"Google Maps Link",                    type:"text",     required:false, order:5, opts:"" },
+  { id:"q_notes",    label:"Brief Project Description",           type:"textarea", required:false, order:6, opts:"" }
+];
+
+/* ── AUTH ── */
+var authTimeout = setTimeout(function() { window.location.href = "login.html"; }, 3000);
+sb.auth.onAuthStateChange(function(event, session) {
+  if (session) {
+    clearTimeout(authTimeout);
+    document.body.classList.remove("hidden");
+    currentUser = session.user;
+    loadProfile(session.user.id);
+    loadProjects(session.user.id);
+    loadIntakeQuestions();
+    loadRegistryVersion();
+  } else if (event === "INITIAL_SESSION" || event === "SIGNED_OUT") {
+    window.location.href = "login.html";
+  }
+});
+
+/* ── PROFILE ── */
+function loadProfile(uid) {
+  sb.from("profiles").select("first_name,last_name").eq("id", uid).single().then(function(res) {
+    if (!res.data) return;
+    var f = res.data.first_name || "", l = res.data.last_name || "";
+    document.getElementById("av").textContent    = ((f[0] || "") + (l[0] || "")).toUpperCase() || "?";
+    document.getElementById("uname").textContent = (f + " " + l).trim() || "User";
+    document.getElementById("firstname").textContent = f || "there";
+  });
+}
+
+/* ── LOAD INTAKE QUESTIONS + SCORE THRESHOLDS ── */
+var DASH_GREEN  = 70;
+var DASH_YELLOW = 40;
+
+function loadIntakeQuestions() {
+  sb.from("admin_config").select("key,value")
+    .in("key", ["intake_questions","score_green_threshold","score_yellow_threshold"])
+    .then(function(res) {
+      (res.data || []).forEach(function(row) {
+        if (row.key === "intake_questions") {
+          try {
+            var parsed = JSON.parse(row.value);
+            if (Array.isArray(parsed) && parsed.length > 0)
+              intakeQs = parsed.slice().sort(function(a,b){ return (a.order||0)-(b.order||0); });
+          } catch(e) {}
+        } else if (row.key === "score_green_threshold"  && row.value) DASH_GREEN  = parseInt(row.value) || 70;
+        else if   (row.key === "score_yellow_threshold" && row.value) DASH_YELLOW = parseInt(row.value) || 40;
+      });
+      if (!intakeQs || !intakeQs.length) intakeQs = DEFAULT_QUESTIONS.slice();
+    });
+}
+
+/* ── PROJECTS ── */
+function loadProjects(uid) {
+  sb.from("projects").select("*, tally_fields").eq("user_id", uid).order("created_at", { ascending: false })
+    .then(function(res) {
+      projects = res.data || [];
+      renderStats();
+      renderCards();
+    });
+}
+
+function renderStats() {
+  var complete = projects.filter(function(p) { return p.status === "complete"; });
+  var scored   = complete.filter(function(p) { return p.score_overall != null; });
+  var avg      = scored.length ? Math.round(scored.reduce(function(a, p) { return a + p.score_overall; }, 0) / scored.length) : null;
+  document.getElementById("st-total").textContent = projects.length;
+  document.getElementById("st-reports").textContent = complete.length;
+  document.getElementById("st-avg").textContent    = avg || "-";
+  document.getElementById("st-prog").textContent   = projects.filter(function(p) { return p.status === "in-progress"; }).length;
+}
+
+function scoreClass(v) { return v >= DASH_GREEN ? "hi" : v < DASH_YELLOW ? "lo" : ""; }
+
+var CATS = [
+  { key:"score_design",    label:"Design",         short:"Design"  },
+  { key:"score_construct", label:"Construction",    short:"Build"   },
+  { key:"score_contract",  label:"Contract",        short:"Legal"   },
+  { key:"score_intercon",  label:"Interconnection", short:"Grid"    },
+  { key:"score_financial", label:"Financial",       short:"Finance" },
+  { key:"score_permit",    label:"Permitting",      short:"Permit"  }
+];
+
+function renderCards() {
+  var list = currentFilter === "all" ? projects : projects.filter(function(p) { return p.status === currentFilter; });
+  var grid = document.getElementById("grid");
+  grid.innerHTML = "";
+  document.getElementById("empty").className = list.length ? "empty" : "empty show";
+  if (!list.length) return;
+
+  list.forEach(function(p) {
+    var date       = new Date(p.created_at).toLocaleDateString("en-GB", { day:"2-digit", month:"short", year:"numeric" });
+    var status     = p.status || "draft";
+    var sc         = p.score_overall;
+    var stageShort = (p.stage || "").replace(/\s*\(.*?\)/g, "").trim();
+    var scoredCats = CATS.filter(function(c) { return p[c.key] != null; });
+
+    var barsHtml = scoredCats.map(function(c) {
+      var v = p[c.key];
+      return '<div class="bar-row"><span class="bar-lbl">' + c.short + '</span>' +
+        '<div class="bar-track"><div class="bar-fill ' + scoreClass(v) + '" style="width:' + v + '%"></div></div>' +
+        '<span class="bar-num">' + v + '</span></div>';
+    }).join("");
+
+    var catBtns = CATS.map(function(c) {
+      var done = p[c.key] != null;
+      return '<button class="cat-btn ' + (done ? "done" : "") + '" ' +
+        'onclick="openCatForm(\'' + p.id + '\',\'' + c.key + '\')" title="' + c.label + '">' +
+        c.short + (done ? " " + p[c.key] : "+") + '</button>';
+    }).join("");
+
+    var locHtml = "";
+    if (p.location) {
+      locHtml = p.location.startsWith("http")
+        ? '<a href="' + p.location + '" target="_blank" class="maps-link">View on Maps</a>'
+        : p.location;
+    }
+
+    var tf         = p.tally_fields || {};
+    var stateVal   = tf["q_state"] || tf["in_which_state_is_the_project_located?"] || null;
+    var geoHtml    = "";
+    if (stateVal && p.location) {
+      geoHtml = '<span class="geo-check" id="geo_' + p.id + '">...</span>';
+      setTimeout((function(pid, st, url) {
+        return function() { checkGeoMatch(pid, st, url); };
+      })(p.id, stateVal, p.location), 200);
+    }
+
+    var infoLine   = [p.capacity_mw ? p.capacity_mw + " MWp" : null, stageShort || null].filter(Boolean).join("  &middot;  ");
+    var borderColor = status === "complete" ? "#FFFF00" : status === "in-progress" ? "#FF8C00" : "#ccc";
+
+    var pName = (p.name || "Unnamed Project").replace(/'/g, "&#39;");
+    var div   = document.createElement("div");
+    div.className   = "card";
+    div.style.borderLeft = "4px solid " + borderColor;
+    div.innerHTML =
+      '<div class="card-hdr">' +
+        '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">' +
+          '<div style="flex:1;min-width:0;">' +
+            '<div class="card-name">' + esc(p.name || "Unnamed Project") + '</div>' +
+            '<span class="badge ' + status + '" style="margin-top:7px;display:inline-block;">' + status.replace("-", " ") + '</span>' +
+          '</div>' +
+          '<div class="score-circle ' + (sc != null ? scoreClass(sc) : "") + '" style="flex-shrink:0;margin-top:2px;">' +
+            (sc != null
+              ? '<span class="score-num">' + sc + '</span>'
+              : '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>') +
+          '</div>' +
+        '</div>' +
+        '<div class="card-loc" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:10px;">' +
+          (locHtml ? locHtml : "") + geoHtml +
+        '</div>' +
+        (infoLine ? '<div class="card-stage" style="margin-top:5px;">' + infoLine + '</div>' : '') +
+      '</div>' +
+      (scoredCats.length
+        ? '<div class="card-scores"><div class="bars">' + barsHtml + '</div></div>'
+        : '<div class="card-intake-msg">Intake complete. Start category assessments below.</div>') +
+      '<div class="card-cats">' + catBtns + '</div>' +
+      '<div class="card-ftr">' +
+        '<span class="card-date">' + date + '</span>' +
+        '<div style="display:flex;gap:8px;align-items:center;">' +
+          '<div class="card-menu-wrap">' +
+            '<button class="btn-dots" onclick="toggleCardMenu(event,\'' + p.id + '\')">&#8942;</button>' +
+            '<div class="card-menu" id="menu_' + p.id + '">' +
+              '<button class="card-menu-item" onclick="closeCardMenu();openIntake(\'' + p.id + '\')">&#9998;&nbsp; Edit Intake</button>' +
+              '<button class="card-menu-item" onclick="closeCardMenu();duplicateProject(\'' + p.id + '\')">&#x29C9;&nbsp; Duplicate</button>' +
+              '<button class="card-menu-item danger" onclick="closeCardMenu();deleteProject(\'' + p.id + '\',\'' + pName + '\')">&#x2715;&nbsp; Delete</button>' +
+            '</div>' +
+          '</div>' +
+          '<button class="btn-overview" onclick="openOverview(\'' + p.id + '\')">Overview &rsaquo;</button>' +
+        '</div>' +
+      '</div>';
+    grid.appendChild(div);
+  });
+}
+
+/* ── INTAKE PANEL ── */
+function openIntake(projectId) {
+  intakeProjId = projectId || null;
+  intakeVals   = {};
+
+  document.getElementById("ip-title").textContent       = projectId ? "Edit Intake" : "New Assessment";
+  document.getElementById("ip-save-btn").textContent    = projectId ? "Save Changes" : "Save Project";
+  document.getElementById("ip-msg").className           = "ip-save-msg";
+  document.getElementById("ip-msg").textContent         = "";
+
+  if (projectId) {
+    var proj = projects.find(function(p) { return p.id === projectId; });
+    if (proj) {
+      var tf = proj.tally_fields || {};
+      var qs = intakeQs.length ? intakeQs : DEFAULT_QUESTIONS;
+      qs.forEach(function(q) {
+        if (tf[q.id] !== undefined && tf[q.id] !== null) intakeVals[q.id] = tf[q.id];
+      });
+      // Legacy field mappings
+      if (!intakeVals.q_name     && proj.name)        intakeVals.q_name     = proj.name;
+      if (!intakeVals.q_cap      && proj.capacity_mw) intakeVals.q_cap      = proj.capacity_mw;
+      if (!intakeVals.q_stage    && proj.stage)       intakeVals.q_stage    = proj.stage;
+      if (!intakeVals.q_location && proj.location)    intakeVals.q_location = proj.location;
+    }
+  }
+
+  renderIntakeFields();
+  document.getElementById("ip-backdrop").classList.add("open");
+  document.getElementById("ip-panel").classList.add("open");
+  document.body.style.overflow = "hidden";
+}
+
+function closeIntake() {
+  document.getElementById("ip-backdrop").classList.remove("open");
+  document.getElementById("ip-panel").classList.remove("open");
+  document.body.style.overflow = "";
+}
+
+function renderIntakeFields() {
+  var qs   = intakeQs.length ? intakeQs : DEFAULT_QUESTIONS;
+  var html = "";
+  qs.forEach(function(q) {
+    var val = intakeVals[q.id] !== undefined ? intakeVals[q.id] : "";
+    html += '<div class="iq-block" id="iqb_' + q.id + '">';
+    html += '<label class="iq-lbl">' + esc(q.label) + (q.required ? '<span class="iq-req">*</span>' : '') + '</label>';
+
+    if (q.type === "toggle") {
+      var on = (val === true || val === "true" || val === "yes");
+      html += '<div class="iq-tog-row">' +
+        '<div class="iq-tog' + (on ? " on" : "") + '" id="iqi_' + q.id + '" onclick="togIntake(\'' + q.id + '\')">' +
+          '<div class="iq-tog-knob"></div>' +
+        '</div>' +
+        '<span class="iq-tog-label" id="iql_' + q.id + '">' + (on ? "Yes" : "No") + '</span>' +
+        '</div>';
+    } else if (q.type === "select") {
+      var opts = (typeof q.opts === "string" ? q.opts : "").split(",").map(function(o) { return o.trim(); }).filter(Boolean);
+      html += '<select class="iq-select" id="iqi_' + q.id + '" onchange="chgIntake(\'' + q.id + '\',this.value)">' +
+        '<option value="">&#8212; Select &#8212;</option>' +
+        opts.map(function(o) { return '<option value="' + esc(o) + '"' + (String(val) === o ? ' selected' : '') + '>' + esc(o) + '</option>'; }).join("") +
+        '</select>';
+    } else if (q.type === "textarea") {
+      html += '<textarea class="iq-textarea" id="iqi_' + q.id + '" oninput="chgIntake(\'' + q.id + '\',this.value)" placeholder="' + esc(q.label) + '">' + esc(String(val)) + '</textarea>';
+    } else if (q.type === "number") {
+      html += '<input class="iq-input" type="number" id="iqi_' + q.id + '" value="' + esc(String(val)) + '" placeholder="' + esc(q.label) + '" oninput="chgIntake(\'' + q.id + '\',this.value)"/>';
+    } else if (q.type === "date") {
+      html += '<input class="iq-input" type="date" id="iqi_' + q.id + '" value="' + esc(String(val)) + '" onchange="chgIntake(\'' + q.id + '\',this.value)"/>';
+    } else {
+      html += '<input class="iq-input" type="text" id="iqi_' + q.id + '" value="' + esc(String(val)) + '" placeholder="' + esc(q.label) + '" oninput="chgIntake(\'' + q.id + '\',this.value)"/>';
+    }
+    html += '</div>';
+  });
+  document.getElementById("ip-fields").innerHTML = html;
+  updateIntakeProgress();
+}
+
+function chgIntake(qId, val) {
+  intakeVals[qId] = val;
+  updateIntakeProgress();
+}
+
+function togIntake(qId) {
+  var el  = document.getElementById("iqi_" + qId);
+  var lbl = document.getElementById("iql_" + qId);
+  var on  = !el.classList.contains("on");
+  el.classList.toggle("on", on);
+  if (lbl) lbl.textContent = on ? "Yes" : "No";
+  intakeVals[qId] = on;
+  updateIntakeProgress();
+}
+
+function updateIntakeProgress() {
+  var qs     = intakeQs.length ? intakeQs : DEFAULT_QUESTIONS;
+  var filled = qs.filter(function(q) { var v = intakeVals[q.id]; return v !== undefined && v !== null && v !== "" && v !== false; }).length;
+  var pct    = qs.length ? Math.round(filled / qs.length * 100) : 0;
+  document.getElementById("ip-prog-fill").style.width = pct + "%";
+  document.getElementById("ip-prog-txt").textContent  = pct + "%";
+}
+
+function saveIntake() {
+  var qs  = intakeQs.length ? intakeQs : DEFAULT_QUESTIONS;
+  var btn = document.getElementById("ip-save-btn");
+  var msg = document.getElementById("ip-msg");
+
+  // Clear previous validation
+  qs.forEach(function(q) {
+    var el = document.getElementById("iqi_" + q.id);
+    if (el) el.classList.remove("invalid");
+  });
+
+  // Validate required fields
+  var missing = qs.filter(function(q) { return q.required && !intakeVals[q.id]; });
+  if (missing.length) {
+    missing.forEach(function(q) {
+      var el = document.getElementById("iqi_" + q.id);
+      if (el) el.classList.add("invalid");
+    });
+    msg.textContent = "Please fill in: " + missing.map(function(q) { return q.label; }).join(", ");
+    msg.className   = "ip-save-msg err";
+    setTimeout(function() { msg.className = "ip-save-msg"; }, 4000);
+    return;
+  }
+
+  btn.disabled    = true;
+  btn.textContent = "Saving\u2026";
+
+  // Determine top-level project field mappings
+  var findQ = function(hint) {
+    return qs.find(function(q) {
+      return q.id === hint || q.label.toLowerCase().indexOf(hint.toLowerCase()) !== -1;
+    });
+  };
+  var nameQ  = findQ("q_name")  || findQ("project name");
+  var capQ   = findQ("q_cap")   || findQ("capacity");
+  var stageQ = findQ("q_stage") || findQ("stage");
+  var locQ   = findQ("q_location") || findQ("maps") || findQ("location");
+
+  var projName = nameQ  ? String(intakeVals[nameQ.id]  || "Untitled Project") : "Untitled Project";
+  var cap      = capQ   ? (parseFloat(intakeVals[capQ.id])  || null) : null;
+  var stage    = stageQ ? (intakeVals[stageQ.id]  || null) : null;
+  var location = locQ   ? (intakeVals[locQ.id]    || null) : null;
+
+  var tf = Object.assign({}, intakeVals);
+  var now = new Date().toISOString();
+
+  if (intakeProjId) {
+    var proj = projects.find(function(p) { return p.id === intakeProjId; });
+    var merged = Object.assign({}, (proj && proj.tally_fields) || {}, tf);
+    sb.from("projects").update({
+      name: projName, capacity_mw: cap, stage: stage, location: location,
+      tally_fields: merged, updated_at: now
+    }).eq("id", intakeProjId).eq("user_id", currentUser.id).then(function(res) {
+      btn.disabled    = false;
+      btn.textContent = "Save Changes";
+      if (res.error) { showIntakeMsg("Error: " + res.error.message, "err"); return; }
+      showIntakeMsg("Saved \u2713", "ok");
+      loadProjects(currentUser.id);
+    });
+  } else {
+    sb.from("projects").insert({
+      user_id: currentUser.id, name: projName, capacity_mw: cap,
+      stage: stage, location: location, status: "draft",
+      tally_fields: tf, created_at: now, updated_at: now
+    }).select().then(function(res) {
+      btn.disabled    = false;
+      btn.textContent = "Save Project";
+      if (res.error) { showIntakeMsg("Error: " + res.error.message, "err"); return; }
+      showIntakeMsg("Project created \u2713", "ok");
+      setTimeout(function() { closeIntake(); loadProjects(currentUser.id); }, 1400);
+    });
+  }
+}
+
+function showIntakeMsg(text, type) {
+  var msg = document.getElementById("ip-msg");
+  msg.textContent = text;
+  msg.className   = "ip-save-msg " + type;
+  if (type === "ok") setTimeout(function() { msg.className = "ip-save-msg"; }, 3000);
+}
+
+/* ── CATEGORY FORMS → redirect to overview ── */
+function openCatForm(projectId, catKey) {
+  // Navigate to overview page; the page handles opening the right category panel
+  window.location.href = "overview.html?id=" + projectId + "&cat=" + catKey;
+}
+
+function closeForm() {
+  document.getElementById("overlay").classList.remove("open");
+  document.getElementById("tally-frame").src = "";
+  document.body.style.overflow = "";
+  if (currentUser) {
+    loadProjects(currentUser.id);
+    setTimeout(function() { loadProjects(currentUser.id); }, 3000);
+  }
+}
+
+window.addEventListener("message", function(e) {
+  var str = typeof e.data === "string" ? e.data : JSON.stringify(e.data || "");
+  if (str.indexOf("Tally.FormSubmitted") !== -1 || str.indexOf("formSubmitted") !== -1) {
+    setTimeout(closeForm, 1500);
+  }
+});
+
+/* ── FILTER ── */
+function doFilter(btn, status) {
+  document.querySelectorAll(".fbtn").forEach(function(b) { b.classList.remove("active"); });
+  btn.classList.add("active");
+  currentFilter = status;
+  renderCards();
+}
+
+/* ── DUPLICATE ── */
+function duplicateProject(id) {
+  var proj = projects.find(function(p) { return p.id === id; });
+  if (!proj) return;
+  if (!confirm('Duplicate "' + (proj.name || "this project") + '"?')) return;
+  var now = new Date().toISOString();
+  sb.from("projects").insert({
+    user_id:     currentUser.id,
+    name:        (proj.name || "Untitled") + " (Copy)",
+    capacity_mw: proj.capacity_mw,
+    stage:       proj.stage,
+    location:    proj.location,
+    status:      "draft",
+    tally_fields: proj.tally_fields || {},
+    created_at:  now,
+    updated_at:  now
+  }).then(function(res) {
+    if (res.error) { alert("Duplicate failed: " + res.error.message); return; }
+    loadProjects(currentUser.id);
+  });
+}
+
+/* ── DELETE ── */
+function deleteProject(id, name) {
+  if (!confirm('Delete "' + name + '"?\n\nThis cannot be undone.')) return;
+  var entered = prompt("Type your email to confirm:");
+  if (!entered) return;
+  if (entered.trim().toLowerCase() !== (currentUser.email || "").toLowerCase()) {
+    alert("Email does not match. Cancelled."); return;
+  }
+  sb.from("projects").delete().eq("id", id).eq("user_id", currentUser.id)
+    .then(function(res) { if (!res.error) loadProjects(currentUser.id); });
+}
+
+/* ── OVERVIEW ── */
+function openOverview(id) { window.location.href = "overview.html?id=" + id; }
+
+/* ── GEO CHECK ── */
+function checkGeoMatch(projectId, stateName, mapsUrl) {
+  var el = document.getElementById("geo_" + projectId);
+  if (!el) return;
+  el.textContent = "...";
+  var coordPatterns = [/@(-?[0-9]+\.[0-9]+),(-?[0-9]+\.[0-9]+)/, /q=(-?[0-9]+\.[0-9]+),(-?[0-9]+\.[0-9]+)/, /ll=(-?[0-9]+\.[0-9]+),(-?[0-9]+\.[0-9]+)/];
+  var lat = null, lng = null;
+  for (var i = 0; i < coordPatterns.length; i++) {
+    var m = mapsUrl.match(coordPatterns[i]);
+    if (m) { lat = parseFloat(m[1]); lng = parseFloat(m[2]); break; }
+  }
+  if (lat !== null) {
+    fetch("https://nominatim.openstreetmap.org/reverse?lat=" + lat + "&lon=" + lng + "&format=json&accept-language=en")
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        var addr     = (data && data.address) ? data.address : {};
+        var locState = (addr.state || "").toLowerCase().trim();
+        var selState = stateName.toLowerCase().trim();
+        var match    = (locState === selState) || (locState.indexOf(selState) !== -1 && selState.length > 4) || (selState.indexOf(locState) !== -1 && locState.length > 4);
+        if (match) {
+          el.textContent = "State OK";
+          el.className   = "geo-check geo-ok";
+        } else {
+          el.textContent = "Mismatch: " + (addr.state || "unknown");
+          el.className   = "geo-check geo-warn";
+        }
+      }).catch(function() { el.style.display = "none"; });
+  } else {
+    el.textContent = "Verify location";
+    el.className   = "geo-check geo-warn";
+  }
+}
+
+
+/* ── 3-DOT CARD MENU ── */
+var _openMenu = null;
+function toggleCardMenu(e, pid) {
+  e.stopPropagation();
+  var m = document.getElementById("menu_" + pid);
+  if (!m) return;
+  if (_openMenu && _openMenu !== m) _openMenu.classList.remove("open");
+  m.classList.toggle("open");
+  _openMenu = m.classList.contains("open") ? m : null;
+}
+function closeCardMenu() {
+  if (_openMenu) { _openMenu.classList.remove("open"); _openMenu = null; }
+}
+document.addEventListener("click", function() { closeCardMenu(); });
+
+/* ── UTILS ── */
+function esc(s) {
+  return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+}
+function doSignout() { sb.auth.signOut(); }
+</script>
+<script type="text/javascript">window.$crisp=[];window.CRISP_WEBSITE_ID="49df8fc4-e9b9-4f8d-b357-680e84e62c67";(function(){d=document;s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);})();
+function loadRegistryVersion() {
+  sb.from('admin_config').select('value').eq('key','field_registry_version').single().then(function(res) {
+    var ver = res.data && res.data.value;
+    var badge = document.getElementById('registry-version-badge');
+    if (badge && ver) {
+      badge.textContent = 'Registry ' + ver;
+      badge.style.display = 'inline-block';
+    }
+  });
+}
+</script>
+</body>
+</html>
